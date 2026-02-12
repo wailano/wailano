@@ -8,7 +8,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
-    <!-- Tesseract.js for OCR -->
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <style>
         :root {
@@ -61,7 +60,7 @@
         .nav-tabs {
             display: flex;
             gap: 8px;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
             justify-content: center;
             width: 100%;
         }
@@ -107,19 +106,6 @@
             text-align: center;
         }
 
-        .stat-label {
-            font-size: 0.75rem;
-            opacity: 0.6;
-            text-transform: uppercase;
-            margin-bottom: 0.5rem;
-        }
-
-        .stat-value {
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: var(--accent);
-        }
-
         .card-container {
             perspective: 1000px;
             width: 100%;
@@ -152,7 +138,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 2rem;
+            padding: 1.5rem;
         }
 
         .card-front {
@@ -165,13 +151,13 @@
         }
 
         .word-text {
-            font-size: clamp(2.5rem, 8vw, 3.5rem);
+            font-size: clamp(2rem, 6vw, 2.5rem);
             font-weight: 800;
             margin-bottom: 1rem;
         }
 
         .meaning-text {
-            font-size: 3rem;
+            font-size: 2.2rem;
             font-weight: 700;
             color: #fff;
         }
@@ -181,14 +167,34 @@
             aspect-ratio: 1;
             border-radius: 16px;
             overflow: hidden;
-            margin-top: 1rem;
-            background: #1a1a1e;
+            margin-top: 0.5rem;
+            background: #111;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .image-box img {
+        #word-img {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            display: none;
+        }
+
+        .image-loading-spinner {
+            width: 30px;
+            height: 30px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         .btn-primary {
@@ -203,12 +209,21 @@
             transition: 0.3s;
         }
 
-        .btn-primary:active {
-            transform: scale(0.98);
+        .btn-ai-auto {
+            background: linear-gradient(135deg, #FF3D77, #FF7F50);
+            border: none;
+            color: white;
+            padding: 1.2rem;
+            border-radius: 16px;
+            font-weight: 800;
+            width: 100%;
+            cursor: pointer;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 15px rgba(255, 61, 119, 0.3);
         }
 
         .btn-ocr {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(34, 211, 238, 0.1);
             border: 1px dashed var(--accent);
             color: var(--accent);
             padding: 1rem;
@@ -216,16 +231,7 @@
             width: 100%;
             margin-bottom: 1.5rem;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
             font-weight: 600;
-        }
-
-        .input-group {
-            margin-bottom: 1.5rem;
-            text-align: left;
         }
 
         input {
@@ -263,7 +269,6 @@
             font-weight: 800;
         }
 
-        .completion-overlay,
         .loading-overlay {
             display: none;
             position: fixed;
@@ -279,36 +284,13 @@
             justify-content: center;
             padding: 2rem;
         }
-
-        /* Loading Spinner */
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid rgba(255, 255, 255, 0.1);
-            border-top-color: var(--accent);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 1.5rem;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
     </style>
 </head>
 
 <body>
-    <div id="completion-overlay" class="completion-overlay">
-        <h2 style="font-size: 4rem;">🏆</h2>
-        <h2 style="margin: 1rem 0;">오늘 학습 끝!</h2>
-        <button class="btn-primary" onclick="closeOverlay()">닫기</button>
-    </div>
-
     <div id="loading-overlay" class="loading-overlay">
-        <div class="spinner"></div>
-        <p id="loading-text">이미지 분석 중...</p>
+        <div class="image-loading-spinner" style="width:50px; height:50px; margin-bottom:1rem;"></div>
+        <p id="loading-text">인공지능 분석 중...</p>
     </div>
 
     <main>
@@ -322,9 +304,33 @@
             <div id="tab-manage" class="tab" onclick="showSection('manage')">단어 관리</div>
         </div>
 
-        <!-- STUDY -->
+        <!-- STUDY Section -->
         <div id="study-section" class="active">
-            <div class="stats-grid">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                <span id="day-badge"
+                    style="background: var(--primary); padding: 4px 12px; border-radius: 15px; font-size: 0.8rem; font-weight: 700;">Day
+                    01</span>
+                <span id="progress-text" style="opacity: 0.5; font-size: 0.8rem;">1 / 0</span>
+            </div>
+
+            <div class="card-container" id="card">
+                <div class="card-inner">
+                    <div class="card-front">
+                        <div id="word-en" class="word-text">...</div>
+                        <div class="image-box" id="img-container">
+                            <div class="image-loading-spinner" id="img-spinner"></div>
+                            <img id="word-img" src="" alt="">
+                        </div>
+                        <p style="margin-top: 10px; opacity: 0.4; font-size: 0.7rem;">터치해서 뜻 확인</p>
+                    </div>
+                    <div class="card-back">
+                        <div id="word-ko" class="meaning-text">...</div>
+                        <button class="btn-primary" style="margin-top: 2rem;" onclick="nextWord(event)">다음 단어</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                 <div class="glass-card">
                     <div class="stat-label">오늘</div>
                     <div id="daily-count" class="stat-value">0</div>
@@ -334,22 +340,9 @@
                     <div id="total-count" class="stat-value">0</div>
                 </div>
             </div>
-            <div class="card-container" id="card">
-                <div class="card-inner">
-                    <div class="card-front">
-                        <div id="word-en" class="word-text">...</div>
-                        <div class="image-box"><img id="word-img" src="" alt=""></div>
-                    </div>
-                    <div class="card-back">
-                        <div id="word-ko" class="meaning-text">...</div>
-                        <button class="btn-primary" style="margin-top: 2rem;" onclick="nextWord(event)">다음</button>
-                    </div>
-                </div>
-            </div>
-            <p id="progress-text" style="text-align: center; opacity: 0.5; font-size: 0.9rem;">0 / 0</p>
         </div>
 
-        <!-- CALENDAR -->
+        <!-- CALENDAR Section -->
         <div id="calendar-section">
             <div class="glass-card">
                 <h3 id="calendar-month" style="margin-bottom: 1.5rem;"></h3>
@@ -357,54 +350,54 @@
             </div>
         </div>
 
-        <!-- MANAGE -->
+        <!-- MANAGE Section -->
         <div id="manage-section">
             <div class="glass-card">
-                <h3 style="margin-bottom: 1.5rem; text-align: left;">새 단어 등록</h3>
-
-                <!-- OCR Button -->
-                <button class="btn-ocr" onclick="document.getElementById('ocr-input').click()">
-                    <span>📸 사진에서 영어 단어 추출</span>
-                </button>
+                <h3 style="margin-bottom: 1.5rem; text-align: left;">🤖 AI 지원실</h3>
+                <button class="btn-ai-auto" onclick="recommendAIWord()">✨ 고등 필수 단어 AI 추천받기</button>
+                <button class="btn-ocr" onclick="document.getElementById('ocr-input').click()">📸 영단어 사진 분석 & 자동
+                    추가</button>
                 <input type="file" id="ocr-input" accept="image/*" style="display:none" onchange="handleOCR(event)">
 
-                <div class="input-group">
-                    <label class="stat-label">영어 단어</label>
-                    <input type="text" id="new-en" placeholder="예: Galaxy">
+                <div
+                    style="border-top: 1px solid var(--glass-border); padding-top: 1.5rem; margin-top: 1rem; text-align: left;">
+                    <label class="stat-label">직접 추가 (영어 입력 시 한글 자동 입력)</label>
+                    <input type="text" id="new-en" placeholder="예: Universe" onblur="handleAutoTranslate()">
+                    <input type="text" id="new-ko" placeholder="한글 뜻">
+                    <button class="btn-primary" style="margin-top:10px" onclick="addWord()">단어장에 추가</button>
                 </div>
-                <div class="input-group">
-                    <label class="stat-label">한글 뜻</label>
-                    <input type="text" id="new-ko" placeholder="예: 은하수">
-                </div>
-                <div class="input-group">
-                    <label class="stat-label">이미지 힌트 (영어)</label>
-                    <input type="text" id="new-prompt" placeholder="영어 입력 시 더 정확한 AI 이미지가 나옵니다">
-                </div>
-                <button class="btn-primary" onclick="addWord()">단어장에 추가하기</button>
 
-                <div style="margin-top: 2rem; border-top: 1px solid var(--glass-border); padding-top: 1rem;">
-                    <p class="stat-label">내 단어장 목록</p>
-                    <div id="word-list"
-                        style="text-align: left; max-height: 200px; overflow-y: auto; margin-top: 1rem; font-size: 0.9rem;">
-                    </div>
+                <p class="stat-label" style="margin-top: 2rem; text-align: left;">내 단어장 목록 (${words?.length || 0})</p>
+                <div id="word-list" style="text-align: left; max-height: 200px; overflow-y: auto; margin-top: 10px;">
                 </div>
             </div>
         </div>
     </main>
 
     <script>
-        const DEFAULT_WORDS = [
-            { en: 'Success', ko: '성공', prompt: 'reaching the mountain top' },
-            { en: 'Adventure', ko: '모험', prompt: 'exploring a wild jungle' }
+        const MASTER_WORDS = [
+            // Day 01-10
+            { en: 'include', ko: '포함하다', day: 1 }, { en: 'produce', ko: '생산하다', day: 1 }, { en: 'belief', ko: '믿음', day: 1 }, { en: 'similar', ko: '유사한', day: 1 }, { en: 'moment', ko: '순간', day: 1 }, { en: 'situation', ko: '상황', day: 1 }, { en: 'improve', ko: '개선하다', day: 1 }, { en: 'increase', ko: '증가하다', day: 1 }, { en: 'decrease', ko: '감소하다', day: 1 }, { en: 'share', ko: '공유하다', day: 1 }, { en: 'emotion', ko: '감정', day: 1 }, { en: 'common', ko: '공통의', day: 1 }, { en: 'recover', ko: '회복하다', day: 1 }, { en: 'advanced', ko: '진보된', day: 1 }, { en: 'indifferent', ko: '무관심한', day: 1 }, { en: 'reject', ko: '거절하다', day: 1 }, { en: 'refuse', ko: '거부하다', day: 1 }, { en: 'accept', ko: '수락하다', day: 1 }, { en: 'experience', ko: '경험', day: 1 }, { en: 'certain', ko: '확실한', day: 1 }, { en: 'consider', ko: '고려하다', day: 1 }, { en: 'supply', ko: '공급하다', day: 1 }, { en: 'provide', ko: '제공하다', day: 1 }, { en: 'practical', ko: '실용적인', day: 1 }, { en: 'express', ko: '표현하다', day: 1 }, { en: 'quantity', ko: '양', day: 1 }, { en: 'superior', ko: '우수한', day: 1 }, { en: 'inferior', ko: '열등한', day: 1 }, { en: 'seek', ko: '찾다', day: 1 }, { en: 'aim', ko: '목표', day: 1 }, { en: 'fade', ko: '희미해지다', day: 1 }, { en: 'disappear', ko: '사라지다', day: 1 }, { en: 'emerge', ko: '나타나다', day: 1 }, { en: 'grief', ko: '슬픔', day: 1 }, { en: 'slight', ko: '약간의', day: 1 }, { en: 'success', ko: '성공', day: 1 }, { en: 'failure', ko: '실패', day: 1 }, { en: 'run into', ko: '우연히 만나다', day: 1 }, { en: 'depend on', ko: '의존하다', day: 1 }, { en: 'carry out', ko: '수행하다', day: 1 },
+            { en: 'illegal', ko: '불법의', day: 2 }, { en: 'local', ko: '지역의', day: 2 }, { en: 'amount', ko: '양', day: 2 }, { en: 'found', ko: '설립하다', day: 2 }, { en: 'establish', ko: '세우다', day: 2 }, { en: 'historical', ko: '역사적인', day: 2 }, { en: 'process', ko: '과정', day: 2 }, { en: 'expert', ko: '전문가', day: 2 }, { en: 'decade', ko: '10년', day: 2 }, { en: 'continue', ko: '계속하다', day: 2 }, { en: 'dedicate', ko: '헌신하다', day: 2 }, { en: 'devote', ko: '바치다', day: 2 }, { en: 'period', ko: '기간', day: 2 }, { en: 'perceive', ko: '인지하다', day: 2 }, { en: 'recognize', ko: '인식하다', day: 2 }, { en: 'exhausted', ko: '기진맥진한', day: 2 }, { en: 'crime', ko: '범죄', day: 2 }, { en: 'expose', ko: '노출하다', day: 2 }, { en: 'reveal', ko: '드러내다', day: 2 }, { en: 'conceal', ko: '숨기다', day: 2 }, { en: 'charity', ko: '자선', day: 2 }, { en: 'deserve', ko: '자격이 있다', day: 2 }, { en: 'unite', ko: '결합하다', day: 2 }, { en: 'combine', ko: '결합하다', day: 2 }, { en: 'separate', ko: '분리하다', day: 2 }, { en: 'complete', ko: '완성하다', day: 2 }, { en: 'connect', ko: '연결하다', day: 2 }, { en: 'overcome', ko: '극복하다', day: 2 }, { en: 'rapid', ko: '빠른', day: 2 }, { en: 'chase', ko: '쫓다', day: 2 }, { en: 'achieve', ko: '성취하다', day: 2 }, { en: 'accomplish', ko: '해내다', day: 2 }, { en: 'mislead', ko: '오도하다', day: 2 }, { en: 'random', ko: '무작위의', day: 2 }, { en: 'organ', ko: '기관/장기', day: 2 }, { en: 'vital', ko: '중요한', day: 2 }, { en: 'reliable', ko: '믿음직한', day: 2 }, { en: 'deal with', ko: '다루다', day: 2 }, { en: 'lead to', ko: '이끌다', day: 2 }, { en: 'get along with', ko: '잘 지내다', day: 2 },
+            // Day 11
+            { en: 'population', ko: '인구', day: 11 }, { en: 'foster', ko: '조성하다/수양의', day: 11 }, { en: 'nurture', ko: '양육하다', day: 11 }, { en: 'available', ko: '이용 가능한', day: 11 }, { en: 'discover', ko: '발견하다', day: 11 }, { en: 'carbon', ko: '탄소', day: 11 }, { en: 'pressure', ko: '압력/압박', day: 11 }, { en: 'accuse', ko: '고발하다/비난하다', day: 11 }, { en: 'outstanding', ko: '뛰어난/미결제된', day: 11 }, { en: 'conversation', ko: '대화', day: 11 }, { en: 'massive', ko: '거대한', day: 11 }, { en: 'analogy', ko: '비유', day: 11 }, { en: 'wound', ko: '상처', day: 11 }, { en: 'cause', ko: '원인/일으키다', day: 11 }, { en: 'consequence', ko: '결과', day: 11 }, { en: 'election', ko: '선거', day: 11 }, { en: 'trace', ko: '추적하다/자취', day: 11 }, { en: 'wire', ko: '철사/전선', day: 11 }, { en: 'restore', ko: '복구하다', day: 11 }, { en: 'cognitive', ko: '인지적인', day: 11 }, { en: 'biological', ko: '생물학적인', day: 11 }, { en: 'ability', ko: '능력', day: 11 }, { en: 'capacity', ko: '용량/능력', day: 11 }, { en: 'ingredient', ko: '재료/성분', day: 11 }, { en: 'adversity', ko: '역경', day: 11 }, { en: 'intelligent', ko: '지능적인', day: 11 }, { en: 'multiple', ko: '다수의', day: 11 }, { en: 'exotic', ko: '외래의/이국적인', day: 11 }, { en: 'reference', ko: '참조/언급', day: 11 }, { en: 'scatter', ko: '흩뿌리다', day: 11 }, { en: 'conflict', ko: '갈등', day: 11 }, { en: 'friction', ko: '마찰', day: 11 }, { en: 'asset', ko: '자산', day: 11 }, { en: 'professional', ko: '전문적인', day: 11 }, { en: 'disclose', ko: '드러내다/폭로하다', day: 11 }, { en: 'negotiate', ko: '협상하다', day: 11 }, { en: 'split', ko: '나누다/쪼개다', day: 11 }, { en: 'have difficulty -ing', ko: '~하는 데 어려움을 겪다', day: 11 }, { en: 'go through', ko: '겪다/통과하다', day: 11 }, { en: 'be regarded as', ko: '~로 간주되다', day: 11 },
+            // Day 12
+            { en: 'modern', ko: '현대의', day: 12 }, { en: 'contemporary', ko: '동시대의/현대의', day: 12 }, { en: 'urgent', ko: '긴급한', day: 12 }, { en: 'relevant', ko: '관련된/적절한', day: 12 }, { en: 'explicit', ko: '명백한', day: 12 }, { en: 'approve', ko: '승인하다', day: 12 }, { en: 'confront', ko: '직면하다', day: 12 }, { en: 'poverty', ko: '가난', day: 12 }, { en: 'wealth', ko: '부/재산', day: 12 }, { en: 'integrate', ko: '통합하다', day: 12 }, { en: 'destructive', ko: '파괴적인', day: 12 }, { en: 'hierarchy', ko: '계급/위계', day: 12 }, { en: 'expertise', ko: '전문 지식', day: 12 }, { en: 'reproduce', ko: '번식하다/재현하다', day: 12 }, { en: 'frequency', ko: '빈도/주파수', day: 12 }, { en: 'identical', ko: '동일한', day: 12 }, { en: 'reinforce', ko: '강화하다', day: 12 }, { en: 'strengthen', ko: '강화하다', day: 12 }, { en: 'industrial', ko: '산업의', day: 12 }, { en: 'classify', ko: '분류하다', day: 12 }, { en: 'mutual', ko: '상호간의', day: 12 }, { en: 'decorate', ko: '장식하다', day: 12 }, { en: 'potential', ko: '잠재적인', day: 12 }, { en: 'possibility', ko: '가능성', day: 12 }, { en: 'implement', ko: '시행하다/도구', day: 12 }, { en: 'widespread', ko: '광범위한', day: 12 }, { en: 'resemble', ko: '닮다', day: 12 }, { en: 'fundamental', ko: '근본적인', day: 12 }, { en: 'enthusiastic', ko: '열광적인', day: 12 }, { en: 'consult', ko: '상담하다', day: 12 }, { en: 'disadvantage', ko: '불이익/단점', day: 12 }, { en: 'drawback', ko: '결점/문제점', day: 12 }, { en: 'steady', ko: '꾸준한', day: 12 }, { en: 'primitive', ko: '원시의', day: 12 }, { en: 'dominant', ko: '지배적인', day: 12 }, { en: 'inhabit', ko: '거주하다', day: 12 }, { en: 'adolescence', ko: '청소년기', day: 12 }, { en: 'attach', ko: '첨부하다/붙이다', day: 12 }, { en: 'in terms of', ko: '~의 관점에서', day: 12 }, { en: 'bring about', ko: '야기하다', day: 12 },
+            // Day 13
+            { en: 'applause', ko: '박수', day: 13 }, { en: 'glance', ko: '흘끗 봄', day: 13 }, { en: 'crawl', ko: '기어가다', day: 13 }, { en: 'hesitate', ko: '망설이다', day: 13 }, { en: 'make sense of', ko: '~을 이해하다', day: 13 }, { en: 'eager', ko: '열망하는', day: 13 }, { en: 'impatient', ko: '조급한', day: 13 }, { en: 'frank', ko: '솔직한', day: 13 }, { en: 'arrogant', ko: '오만한', day: 13 }, { en: 'humble', ko: '겸손한', day: 13 }, { en: 'awkward', ko: '어색한', day: 13 }, { en: 'sincere', ko: '진실한', day: 13 }, { en: 'genuine', ko: '진짜의/진실한', day: 13 }, { en: 'anticipate', ko: '예상하다', day: 13 }, { en: 'responsible', ko: '책임 있는', day: 13 }, { en: 'tolerate', ko: '용인하다/참다', day: 13 }, { en: 'endure', ko: '견디다', day: 13 }, { en: 'put up with', ko: '~을 참다', day: 13 }, { en: 'depression', ko: '우울증/불경기', day: 13 }, { en: 'ashamed', ko: '부끄러워하는', day: 13 }, { en: 'delight', ko: '기쁨', day: 13 }, { en: 'fascinated', ko: '매료된', day: 13 }, { en: 'resent', ko: '분개하다', day: 13 }, { en: 'irritate', ko: '짜증나게 하다', day: 13 }, { en: 'humiliate', ko: '굴욕감을 주다', day: 13 }, { en: 'impulse', ko: '충동', day: 13 }, { en: 'reluctant', ko: '꺼리는', day: 13 }, { en: 'astonished', ko: '깜짝 놀란', day: 13 }, { en: 'miserable', ko: '비참한', day: 13 }, { en: 'arouse', ko: '불러일으키다', day: 13 }, { en: 'frustrated', ko: '좌절한', day: 13 }, { en: 'empathy', ko: '공감', day: 13 }, { en: 'offend', ko: '기분 상하게 하다', day: 13 }, { en: 'compassion', ko: '동정심', day: 13 }, { en: 'despair', ko: '절망', day: 13 }, { en: 'confident', ko: '자신감 있는', day: 13 }, { en: 'jealous', ko: '질투하는', day: 13 }, { en: 'ridiculous', ko: '말도 안 되는', day: 13 }, { en: 'generous', ko: '관대한', day: 13 }, { en: 'faithful', ko: '충실한', day: 13 },
+            // Day 14
+            { en: 'occupation', ko: '직업/점령', day: 14 }, { en: 'supervise', ko: '감독하다', day: 14 }, { en: 'specialize', ko: '전공하다/전문화하다', day: 14 }, { en: 'bond', ko: '유대/결합', day: 14 }, { en: 'certificate', ko: '증명서/자격증', day: 14 }, { en: 'chief', ko: '전략적인/우두머리', day: 14 }, { en: 'collaborate', ko: '협력하다', day: 14 }, { en: 'deprive', ko: '박탈하다', day: 14 }, { en: 'colleague', ko: '동료', day: 14 }, { en: 'shift', ko: '이동/교대 근무', day: 14 }, { en: 'outcome', ko: '결과', day: 14 }, { en: 'exceed', ko: '초과하다', day: 14 }, { en: 'procedure', ko: '절차', day: 14 }, { en: 'attendant', ko: '종업원/참석자', day: 14 }, { en: 'negotiation', ko: '협상', day: 14 }, { en: 'incentive', ko: '장려금/자극', day: 14 }, { en: 'strategy', ko: '전략', day: 14 }, { en: 'challenge', ko: '도전', day: 14 }, { en: 'routine', ko: '일상', day: 14 }, { en: 'shelter', ko: '피난처', day: 14 }, { en: 'withdraw', ko: '철회하다/인출하다', day: 14 }, { en: 'deposit', ko: '예금하다/보증금', day: 14 }, { en: 'secure', ko: '안전한/확보하다', day: 14 }, { en: 'chore', ko: '허드렛일/가사', day: 14 }, { en: 'react', ko: '반응하다', day: 14 }, { en: 'urban', ko: '도시의', day: 14 }, { en: 'rural', ko: '시골의', day: 14 }, { en: 'complicated', ko: '복잡한', day: 14 }, { en: 'resident', ko: '거주자', day: 14 }, { en: 'familiar', ko: '친숙한', day: 14 }, { en: 'miracle', ko: '기적', day: 14 }, { en: 'companion', ko: '동료/동반자', day: 14 }, { en: 'keep up with', ko: '~을 따라잡다', day: 14 }, { en: 'make the most of', ko: '~을 최대한 활용하다', day: 14 }, { en: 'exchange', ko: '교환', day: 14 }, { en: 'strain', ko: '긴장/부담', day: 14 }, { en: 'adventure', ko: '모험', day: 14 }, { en: 'destination', ko: '목적지', day: 14 }, { en: 'accompany', ko: '동행하다', day: 14 }, { en: 'remote', ko: '멀리 떨어진', day: 14 }
         ];
 
-        let words = JSON.parse(localStorage.getItem('voca_list')) || DEFAULT_WORDS;
+        const AI_WORDS = [
+            "phenomenon", "fundamental", "perspective", "hypothesis", "significance", "consequence", "interpretation", "inevitable", "comprehensive", "distinction", "objective", "subjective", "prejudice", "vulnerability", "sustainable", "infrastructure", "adversity", "cognitive", "profound", "ambiguous", "superficial", "adequate", "integrity", "reconcile", "validity", "artificial", "sophisticated", "unprecedented", "manipulate", "paradox", "rehabilitation", "intervention", "compliance", "deficit", "surplus", "equivalent", "empirical", "ethical", "controversial", "implications"
+        ];
+
+        let words = JSON.parse(localStorage.getItem('voca_list')) || MASTER_WORDS;
         let currentIndex = 0;
         let studyHistory = JSON.parse(localStorage.getItem('voca_history') || '{}');
         let dailyCount = parseInt(localStorage.getItem('voca_daily') || '0');
         let totalCount = parseInt(localStorage.getItem('voca_total') || '0');
-        let todayCompleted = false;
-
         const dateKey = new Date().toISOString().split('T')[0];
 
         function showSection(section) {
@@ -416,55 +409,71 @@
             if (section === 'manage') renderWordList();
         }
 
-        // OCR Implementation
+        async function translateToKorean(text) {
+            try {
+                const response = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|ko`);
+                const data = await response.json();
+                return data.responseData.translatedText;
+            } catch { return ''; }
+        }
+
+        async function handleAutoTranslate() {
+            const en = document.getElementById('new-en').value.trim();
+            if (!en) return;
+            const koInput = document.getElementById('new-ko');
+            if (!koInput.value) {
+                koInput.placeholder = '번역 중...';
+                koInput.value = await translateToKorean(en);
+            }
+        }
+
+        async function recommendAIWord() {
+            document.getElementById('loading-overlay').style.display = 'flex';
+            document.getElementById('loading-text').innerText = 'AI가 핵심 단어를 추천 중...';
+
+            const randomEn = AI_WORDS[Math.floor(Math.random() * AI_WORDS.length)];
+            const translatedKo = await translateToKorean(randomEn);
+
+            words.unshift({ en: randomEn, ko: translatedKo, day: 'AI' });
+            localStorage.setItem('voca_list', JSON.stringify(words));
+
+            setTimeout(() => {
+                document.getElementById('loading-overlay').style.display = 'none';
+                renderWordList();
+                alert(`✨ AI 추천 완료!\n\n단어: ${randomEn}\n뜻: ${translatedKo}`);
+            }, 800);
+        }
+
         async function handleOCR(event) {
             const file = event.target.files[0];
             if (!file) return;
-
             document.getElementById('loading-overlay').style.display = 'flex';
-            document.getElementById('loading-text').innerText = '영어를 분석하는 중...';
-
             try {
                 const { data: { text } } = await Tesseract.recognize(file, 'eng');
-                // Extract only English alphabets and ignore others, take the first long word or sentence
-                const words_found = text.match(/[a-zA-Z]+/g);
-                if (words_found && words_found.length > 0) {
-                    // Filter out very short words
-                    const candidate = words_found.find(w => w.length > 2) || words_found[0];
+                const found = text.match(/[a-zA-Z]+/g);
+                if (found) {
+                    const candidate = found.find(w => w.length > 2) || found[0];
                     document.getElementById('new-en').value = candidate;
-                    document.getElementById('new-prompt').value = candidate;
-                    alert('영어 단어가 추출되었습니다! 뜻을 입력해주세요.');
-                } else {
-                    alert('영어 단어를 찾지 못했습니다. 다시 시도해 주세요.');
+                    document.getElementById('new-ko').value = await translateToKorean(candidate);
                 }
-            } catch (err) {
-                console.error(err);
-                alert('분석 중 오류가 발생했습니다.');
-            } finally {
-                document.getElementById('loading-overlay').style.display = 'none';
-                event.target.value = ''; // Reset input
-            }
+            } finally { document.getElementById('loading-overlay').style.display = 'none'; }
         }
 
         function addWord() {
             const en = document.getElementById('new-en').value.trim();
             const ko = document.getElementById('new-ko').value.trim();
-            const prompt = document.getElementById('new-prompt').value.trim() || en;
-
-            if (!en || !ko) return alert('단어와 뜻을 입력해주세요!');
-            words.push({ en, ko, prompt });
+            if (!en || !ko) return alert('내용을 입력해주세요!');
+            words.unshift({ en, ko, day: 'User' });
             localStorage.setItem('voca_list', JSON.stringify(words));
             renderWordList();
             document.getElementById('new-en').value = '';
             document.getElementById('new-ko').value = '';
-            document.getElementById('new-prompt').value = '';
         }
 
         function renderWordList() {
-            const list = document.getElementById('word-list');
-            list.innerHTML = words.map((w, i) => `
-                <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05)">
-                    <span><b>${w.en}</b>: ${w.ko}</span>
+            document.getElementById('word-list').innerHTML = words.map((w, i) => `
+                <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.85rem;">
+                    <span>[D${w.day || '-'}] <b>${w.en}</b>: ${w.ko}</span>
                     <span style="color: #ff5555; cursor: pointer;" onclick="deleteWord(${i})">삭제</span>
                 </div>
             `).join('');
@@ -499,41 +508,38 @@
         }
 
         function updateUI() {
-            if (words.length === 0) {
-                document.getElementById('word-en').innerText = '단어 없음';
-                return;
-            }
+            if (words.length === 0) return;
             const word = words[currentIndex % words.length];
             document.getElementById('word-en').innerText = word.en;
             document.getElementById('word-ko').innerText = word.ko;
-            document.getElementById('word-img').src = `https://pollinations.ai/p/${encodeURIComponent(word.prompt)}?width=400&height=400&nologo=true`;
+            document.getElementById('day-badge').innerText = `Day ${String(word.day || 'User').padStart(2, '0')}`;
+
+            const img = document.getElementById('word-img');
+            const spinner = document.getElementById('img-spinner');
+            img.style.display = 'none'; spinner.style.display = 'block';
+
+            img.src = `https://pollinations.ai/p/${encodeURIComponent(word.en + ' professional visualization')}?width=400&height=400&nologo=true`;
+            img.onload = () => { img.style.display = 'block'; spinner.style.display = 'none'; };
+
             document.getElementById('daily-count').innerText = dailyCount;
             document.getElementById('total-count').innerText = totalCount;
             document.getElementById('progress-text').innerText = `${(currentIndex % words.length) + 1} / ${words.length}`;
 
-            if ((currentIndex % words.length) === words.length - 1 && !todayCompleted && words.length > 0) {
-                todayCompleted = true;
+            if ((currentIndex % words.length) === words.length - 1 && !studyHistory[dateKey]) {
                 studyHistory[dateKey] = true;
                 localStorage.setItem('voca_history', JSON.stringify(studyHistory));
-                setTimeout(() => { document.getElementById('completion-overlay').style.display = 'flex'; }, 800);
+                setTimeout(() => alert('🎉 오늘의 모든 단어를 학습했습니다!'), 800);
             }
         }
 
         function nextWord(e) {
             e.stopPropagation();
             document.getElementById('card').classList.remove('flipped');
-            setTimeout(() => { currentIndex++; dailyCount++; totalCount++; updateLocalStorage(); updateUI(); }, 300);
+            setTimeout(() => { currentIndex++; dailyCount++; totalCount++; localStorage.setItem('voca_daily', dailyCount); localStorage.setItem('voca_total', totalCount); updateUI(); }, 300);
         }
 
-        function updateLocalStorage() {
-            localStorage.setItem('voca_daily', dailyCount);
-            localStorage.setItem('voca_total', totalCount);
-        }
-
-        function closeOverlay() { document.getElementById('completion-overlay').style.display = 'none'; }
         document.getElementById('card').addEventListener('click', () => { if (words.length) document.getElementById('card').classList.toggle('flipped'); });
 
-        // Reset daily at midnight
         if (localStorage.getItem('voca_date') !== new Date().toDateString()) {
             dailyCount = 0;
             localStorage.setItem('voca_daily', '0');
