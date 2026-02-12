@@ -80,7 +80,7 @@
         .card-container {
             perspective: 1000px;
             width: 100%;
-            aspect-ratio: 3/4.6;
+            aspect-ratio: 3/4.8;
             cursor: pointer;
             margin-bottom: 1rem;
         }
@@ -124,10 +124,11 @@
             font-weight: 800;
             margin-bottom: 0.5rem;
             color: #fff;
+            text-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
         }
 
         .meaning-text {
-            font-size: 2.5rem;
+            font-size: 2.8rem;
             font-weight: 700;
             color: #fff;
             text-align: center;
@@ -139,7 +140,7 @@
             border-radius: 20px;
             overflow: hidden;
             margin-top: 5px;
-            background: #111;
+            background: rgba(0, 0, 0, 0.4);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -147,21 +148,21 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        #word-img {
+        #w-img {
             width: 100%;
             height: 100%;
             object-fit: cover;
             display: none;
         }
 
-        .loading-ani {
+        .loader-wrap {
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 10px;
         }
 
-        .dot-loader {
+        .spinner {
             width: 40px;
             height: 40px;
             border: 4px solid rgba(255, 255, 255, 0.1);
@@ -176,23 +177,34 @@
             }
         }
 
-        .loading-text {
-            font-size: 0.7rem;
+        .btn-reload {
+            margin-top: 10px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
             color: var(--accent);
-            opacity: 0.8;
+            font-size: 0.7rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-reload:hover {
+            background: rgba(34, 211, 238, 0.1);
         }
 
         .btn-main {
             background: linear-gradient(135deg, var(--primary), var(--secondary));
             border: none;
             color: white;
-            padding: 1.1rem;
-            border-radius: 18px;
+            padding: 1.2rem;
+            border-radius: 20px;
             font-weight: 800;
             width: 100%;
             cursor: pointer;
             transition: 0.3s;
-            font-size: 1rem;
+            font-size: 1.1rem;
         }
 
         .btn-main:active {
@@ -225,15 +237,16 @@
             width: 100%;
         }
 
-        .input-box {
+        input {
             width: 100%;
-            padding: 1rem;
+            padding: 1.1rem;
             border-radius: 15px;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--glass-border);
             color: white;
             margin-top: 5px;
             margin-bottom: 0.8rem;
+            font-size: 1rem;
         }
     </style>
 </head>
@@ -250,7 +263,6 @@
             <div id="tab-manage" class="tab" onclick="nav('manage')">내 단어장</div>
         </div>
 
-        <!-- LEARN VIEW -->
         <div id="learn-view">
             <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; padding: 0 5px;">
                 <span id="day-info" style="color: var(--accent); font-weight: 800; font-size: 0.8rem;">Day 01</span>
@@ -260,19 +272,21 @@
             <div class="card-container" id="card" onclick="document.getElementById('card').classList.toggle('flipped')">
                 <div class="card-inner">
                     <div class="card-front">
-                        <div id="w-en" class="word-text">Loading...</div>
+                        <div id="w-en" class="word-text">...</div>
                         <div class="image-box">
-                            <div class="loading-ani" id="w-loader">
-                                <div class="dot-loader"></div>
-                                <div class="loading-text">그림 그리는 중...</div>
+                            <div class="loader-wrap" id="w-loader">
+                                <div class="spinner"></div>
+                                <div style="font-size:0.7rem; color:var(--accent);">AI 작화 중...</div>
                             </div>
-                            <img id="w-img" src="">
+                            <img id="w-img">
                         </div>
-                        <p style="margin-top: 1rem; opacity: 0.4; font-size: 0.7rem;">카드를 터치하면 뜻이 보입니다</p>
+                        <button class="btn-reload" onclick="forceReload(event)">🎨 다른 그림으로 보기</button>
+                        <p style="margin-top: 1rem; opacity: 0.4; font-size: 0.65rem;">터치하면 뜻이 나타납니다</p>
                     </div>
                     <div class="card-back">
                         <div id="w-ko" class="meaning-text">...</div>
-                        <button class="btn-main" style="margin-top: 2rem;" onclick="goNext(event)">다음 단어 학습하기 ➔</button>
+                        <button class="btn-main" style="margin-top: 2.5rem;" onclick="goNext(event)">다음 단어 학습하기
+                            ➔</button>
                     </div>
                 </div>
             </div>
@@ -289,22 +303,18 @@
             </div>
         </div>
 
-        <!-- MANAGE VIEW -->
         <div id="manage-view">
             <div class="card-front" style="position:static; height: auto;">
                 <button class="btn-main" style="margin-bottom: 1.5rem;" onclick="addAI()">✨ 고등 필수 AI 단어 추천</button>
-                <div style="width: 100%; text-align: left;">
-                    <input type="text" id="in-en" class="input-box" placeholder="영어 단어" onblur="autoKo()">
-                    <input type="text" id="in-ko" class="input-box" placeholder="한글 뜻">
-                    <button class="btn-main" onclick="addManual()">저장하기</button>
-                </div>
+                <input type="text" id="in-en" placeholder="영어 단어 (예: Universe)" onblur="autoKo()">
+                <input type="text" id="in-ko" placeholder="한글 뜻">
+                <button class="btn-main" onclick="addManual()">저장하기</button>
                 <div id="list-box" style="width: 100%; margin-top: 1.5rem; max-height: 250px; overflow-y: auto;"></div>
             </div>
         </div>
     </main>
 
     <script>
-        // 전체 단어장 데이터 로드 (Day 01-14)
         const MASTER = [
             { en: 'include', ko: '포함하다', day: 1 }, { en: 'produce', ko: '생산하다', day: 1 }, { en: 'belief', ko: '믿음', day: 1 }, { en: 'similar', ko: '유사한', day: 1 }, { en: 'moment', ko: '순간', day: 1 },
             { en: 'population', ko: '인구', day: 11 }, { en: 'foster', ko: '조성하다', day: 11 }, { en: 'nurture', ko: '양육하다', day: 11 },
@@ -326,29 +336,31 @@
             if (name === 'manage') drawList();
         }
 
-        function drawPic(word) {
+        function drawPic(word, force = false) {
             const img = document.getElementById('w-img');
             const loader = document.getElementById('w-loader');
             img.style.display = 'none';
             loader.style.display = 'flex';
 
-            const clean = word.replace(/[^a-zA-Z]/g, "");
-            const seed = Math.floor(Math.random() * 99999);
+            const clean = word.replace(/[^a-zA-Z]/g, "").trim();
+            const seed = force ? Math.random() : 1234567; // 랜덤값 부여로 중복 방지
 
-            // 핵심 업데이트: 사진 대신 '그림/일러스트'를 강제로 생성하도록 프롬프트 고정
-            const illustPrompt = `${clean} simple flat vector illustration, cartoon style, cute drawing, minimal art, white background`;
-            const source = `https://image.pollinations.ai/prompt/${encodeURIComponent(illustPrompt)}?width=512&height=512&nologo=true&seed=${seed}`;
+            // 핵심: 고해상도 사진 대신 '단어 의미 집중 일러스트' 프롬프트
+            const prompt = `Very simple 3D clay style illustration of ${clean}, cute character, minimal clean background, soft lighting`;
+            const source = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=512&height=512&nologo=true&seed=${Math.floor(seed * 100000)}`;
 
             img.src = source;
             img.onload = () => { img.style.display = 'block'; loader.style.display = 'none'; };
             img.onerror = () => {
-                // 그림 로딩 실패 시 아기자기한 캐릭터형 대체 그림
-                img.src = `https://robohash.org/${clean}.png?set=set4&size=512x512`;
+                // 고양이 대신 단어 의미를 검색한 실사 삽화 소스로 교체
+                img.src = `https://loremflickr.com/512/512/drawing,${clean}?lock=${Math.floor(seed * 1000)}`;
                 img.onload = () => { img.style.display = 'block'; loader.style.display = 'none'; };
             };
+        }
 
-            // 5초 타임아웃
-            setTimeout(() => { if (img.style.display === 'none') img.onerror(); }, 5000);
+        function forceReload(e) {
+            if (e) e.stopPropagation();
+            drawPic(words[idx % words.length].en, true);
         }
 
         function refresh() {
