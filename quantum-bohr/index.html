@@ -4,19 +4,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Word Master | 정답 자동 로딩 버전</title>
+    <title>AI Word Master | Gemini Visual Pro</title>
     <script src="vocabulary.js" onerror="window.MASTER_WORDS=[]"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --background: #0d0d12;
-            --primary: #6366f1;
-            --secondary: #a855f7;
-            --accent: #22d3ee;
-            --card-bg: rgba(255, 255, 255, 0.04);
-            --glass-border: rgba(255, 255, 255, 0.1);
+            --background: #09090b;
+            --primary: #4285f4;
+            --accent: #10b981;
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --danger: #ef4444;
+            --gemini-grad: linear-gradient(135deg, #4285f4, #91b9ff, #c084fc);
         }
 
         * {
@@ -27,7 +27,9 @@
 
         body {
             background: var(--background);
-            background-image: radial-gradient(circle at 50% 0%, #1e1e30 0%, #0d0d12 100%);
+            background-image:
+                radial-gradient(circle at 0% 0%, rgba(66, 133, 244, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 100% 100%, rgba(192, 132, 252, 0.1) 0%, transparent 50%);
             color: #ffffff;
             font-family: 'Inter', sans-serif;
             min-height: 100vh;
@@ -40,6 +42,7 @@
         main {
             width: 100%;
             max-width: 450px;
+            position: relative;
         }
 
         .header h1 {
@@ -47,9 +50,10 @@
             text-align: center;
             margin-bottom: 0.8rem;
             font-weight: 800;
-            background: linear-gradient(to right, var(--primary), var(--accent));
+            background: var(--gemini-grad);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 10px rgba(66, 133, 244, 0.3));
         }
 
         .nav-tabs {
@@ -65,34 +69,34 @@
             border-radius: 20px;
             cursor: pointer;
             font-size: 0.95rem;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--glass-border);
-            transition: 0.3s;
-            opacity: 0.6;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            opacity: 0.4;
             font-weight: 700;
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .tab.active {
-            background: var(--primary);
+            background: rgba(66, 133, 244, 0.15);
             opacity: 1;
             color: white;
-            border-color: var(--primary);
-            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+            border-color: rgba(66, 133, 244, 0.5);
+            box-shadow: 0 0 20px rgba(66, 133, 244, 0.2);
         }
 
         .card-container {
-            perspective: 1000px;
+            perspective: 2000px;
             width: 100%;
-            aspect-ratio: 3/5;
+            aspect-ratio: 3/5.6;
             cursor: pointer;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
         }
 
         .card-inner {
             position: relative;
             width: 100%;
             height: 100%;
-            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
             transform-style: preserve-3d;
         }
 
@@ -106,57 +110,122 @@
             width: 100%;
             height: 100%;
             backface-visibility: hidden;
-            border-radius: 32px;
-            border: 1px solid var(--glass-border);
+            border-radius: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            padding: 1.8rem;
-            background: rgba(255, 255, 255, 0.03);
+            padding: 2rem 1.6rem;
+            background: rgba(20, 20, 25, 0.8);
             backdrop-filter: blur(20px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
 
         .card-back {
             transform: rotateY(180deg);
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(168, 85, 247, 0.2));
+            background: linear-gradient(135deg, rgba(66, 133, 244, 0.1), rgba(192, 132, 252, 0.05));
+            justify-content: center;
         }
 
         .word-text {
-            font-size: clamp(2rem, 8vw, 2.8rem);
+            font-size: clamp(2.2rem, 10vw, 3.5rem);
             font-weight: 800;
             margin-bottom: 1.5rem;
-            color: #fff;
             text-align: center;
+            color: #fff;
+            letter-spacing: -2px;
         }
 
         .meaning-text {
-            font-size: 2.8rem;
-            font-weight: 700;
-            color: #fff;
+            font-size: 3rem;
+            font-weight: 800;
             text-align: center;
-            line-height: 1.2;
+            color: #fff;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.2);
+        }
+
+        /* 🖼️ Gemini 픽 이미지 캔버스 */
+        .visual-box {
+            width: 100%;
+            height: 220px;
+            border-radius: 28px;
+            margin-bottom: 1.2rem;
+            background: #000;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .visual-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: 0.8s ease;
+            opacity: 0;
+            transform: scale(1.1);
+        }
+
+        .visual-box img.loaded {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .img-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 10px;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+            font-size: 0.65rem;
+            color: rgba(255, 255, 255, 0.6);
+            text-align: center;
+            font-weight: 700;
+        }
+
+        .img-loader {
+            position: absolute;
+            font-size: 0.75rem;
+            color: #4285f4;
+            font-weight: 700;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .spinner-m {
+            width: 30px;
+            height: 30px;
+            border: 3px solid rgba(66, 133, 244, 0.1);
+            border-top-color: #4285f4;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
         }
 
         .explanation-box {
             width: 100%;
             flex-grow: 1;
             padding: 1.2rem;
-            border-radius: 24px;
-            background: rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             position: relative;
             display: flex;
             flex-direction: column;
             justify-content: center;
             text-align: center;
-            overflow-y: auto;
         }
 
         .ex-text {
-            font-size: 0.95rem;
+            font-size: 1.2rem;
             line-height: 1.6;
-            color: #f1f3f5;
+            color: #e4e4e7;
+            font-weight: 600;
             word-break: keep-all;
         }
 
@@ -164,29 +233,43 @@
             position: absolute;
             top: -10px;
             left: 20px;
-            background: #FFD93D;
-            color: #000;
+            background: var(--gemini-grad);
+            color: #fff;
             font-size: 0.65rem;
-            padding: 3px 10px;
-            border-radius: 8px;
+            padding: 4px 12px;
+            border-radius: 10px;
             font-weight: 800;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+            z-index: 10;
         }
 
         .btn-main {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            background: var(--gemini-grad);
             border: none;
             color: white;
-            padding: 1.1rem;
-            border-radius: 20px;
+            padding: 1.2rem;
+            border-radius: 24px;
             font-weight: 800;
             width: 100%;
             cursor: pointer;
-            transition: 0.3s;
-            font-size: 1rem;
+            font-size: 1.1rem;
+            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 15px 30px -10px rgba(66, 133, 244, 0.5);
+        }
+
+        .btn-main:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 40px -10px rgba(66, 133, 244, 0.6);
         }
 
         .btn-main:active {
             transform: scale(0.96);
+        }
+
+        .btn-main:disabled {
+            opacity: 0.5;
+            cursor: wait;
+            filter: grayscale(1);
         }
 
         #manage-view {
@@ -195,39 +278,82 @@
         }
 
         .manage-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--glass-border);
-            border-radius: 28px;
-            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 35px;
+            padding: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .api-input-wrap {
+            background: rgba(66, 133, 244, 0.05);
+            border-radius: 22px;
+            padding: 1.2rem;
+            border: 1px solid rgba(66, 133, 244, 0.2);
+            margin-bottom: 2rem;
+        }
+
+        input[type="text"] {
             width: 100%;
+            padding: 1rem;
+            border-radius: 15px;
+            background: #000;
+            border: 1px solid rgba(66, 133, 244, 0.4);
+            color: #91b9ff;
+            margin-top: 10px;
+            font-family: monospace;
+            font-size: 0.85rem;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        input[type="text"]:focus {
+            border-color: #4285f4;
+            box-shadow: 0 0 15px rgba(66, 133, 244, 0.2);
         }
 
         select {
             width: 100%;
             padding: 1rem;
-            border-radius: 15px;
+            border-radius: 20px;
             background: #1a1a2e;
-            border: 1px solid var(--primary);
+            border: 1px solid rgba(66, 133, 244, 0.3);
             color: white;
             margin-bottom: 12px;
+            font-weight: 700;
             font-size: 1rem;
+            text-align: center;
+            appearance: none;
+        }
+
+        .level-selector {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 10px 5px;
+            margin-bottom: 15px;
+            scrollbar-width: none;
+        }
+
+        .lv-btn {
+            flex-shrink: 0;
+            padding: 10px 18px;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.85rem;
+            color: #fff;
+            cursor: pointer;
+            transition: 0.3s;
             font-weight: 700;
         }
 
-        .loading-wrap {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .spinner {
-            width: 28px;
-            height: 28px;
-            border: 3px solid rgba(255, 255, 255, 0.1);
-            border-top-color: var(--accent);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
+        .lv-btn.active {
+            background: #10b981;
+            color: #fff;
+            font-weight: 800;
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3);
+            border-color: #10b981;
         }
 
         @keyframes spin {
@@ -242,39 +368,57 @@
 
     <main>
         <div class="header">
-            <h1>AI Word Master</h1>
+            <h1>Gemini Visual Master</h1>
         </div>
 
         <div class="nav-tabs">
-            <div id="tab-learn" class="tab active" onclick="nav('learn')">학습</div>
-            <div id="tab-manage" class="tab" onclick="nav('manage')">관리</div>
+            <div id="tab-learn" class="tab active" onclick="nav('learn')">학습 중</div>
+            <div id="tab-manage" class="tab" onclick="nav('manage')">AI 설정</div>
         </div>
 
         <div id="learn-view">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 0.6rem; padding: 0 5px;">
-                <span id="day-info" style="color: var(--accent); font-weight: 800; font-size: 0.8rem;">Quiz Mode</span>
-                <span id="prog-info" style="opacity: 0.6; font-size: 0.8rem;">0 / 0</span>
+            <div class="level-selector">
+                <div class="lv-btn active" onclick="setFilter('ALL', this)">전체</div>
+                <div class="lv-btn" onclick="setFilter('KID', this)">어린이</div>
+                <div class="lv-btn" onclick="setFilter('ELEM', this)">초등</div>
+                <div class="lv-btn" onclick="setFilter('MID', this)">중등</div>
+                <div class="lv-btn" onclick="setFilter('HIGH', this)">고등</div>
             </div>
 
-            <div class="card-container" id="card" onclick="document.getElementById('card').classList.toggle('flipped')">
+            <div
+                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding: 0 10px;">
+                <span id="model-info" style="color: #91b9ff; font-weight: 800; font-size: 0.9rem;">Mode:
+                    GEMINI-PRO</span>
+                <span id="prog-info" style="color: rgba(255,255,255,0.4); font-size: 0.85rem; font-weight: 700;">0 /
+                    0</span>
+            </div>
+
+            <div class="card-container" id="card" onclick="flipCard()">
                 <div class="card-inner">
                     <div class="card-front">
-                        <div id="w-en" class="word-text">...</div>
-                        <div class="explanation-box">
-                            <span class="ex-tag">🔎 힌트 퀴즈</span>
-                            <div class="loading-wrap" id="ex-loader">
-                                <div class="spinner"></div>
-                                <div style="font-size:0.75rem; color:var(--accent);">AI가 정보를 찾는 중...</div>
+                        <div id="w-en" class="word-text">Loading...</div>
+
+                        <!-- �️ Gemini 픽 이미지 캔버스 -->
+                        <div class="visual-box" id="visual-box">
+                            <div class="img-loader" id="img-loader">
+                                <div class="spinner-m"></div>
+                                <span>제미나이가 그림 가져오는 중...</span>
                             </div>
-                            <div id="w-ex" class="ex-text" style="display:none"></div>
+                            <img id="w-img" src="" alt="visual">
+                            <div class="img-overlay">✨ Gemini Selection</div>
                         </div>
-                        <p style="margin-top: 1.2rem; opacity: 0.4; font-size: 0.65rem;">카드를 뒤집으면 정답 공개!</p>
+
+                        <div class="explanation-box">
+                            <span class="ex-tag">✨ Gemini Quiz</span>
+                            <div id="w-ex" class="ex-text">...</div>
+                        </div>
                     </div>
                     <div class="card-back">
-                        <!-- 정답이 표시되는 곳 -->
                         <div id="w-ko" class="meaning-text">...</div>
-                        <p style="font-size:0.8rem; opacity:0.5; margin-top:10px;">(한국어 뜻)</p>
-                        <button class="btn-main" style="margin-top: 2.5rem;" onclick="goNext(event)">다음 단어 ➔</button>
+                        <p
+                            style="margin-top: 1.5rem; color: rgba(255,255,255,0.3); font-size: 0.8rem; font-weight: 800;">
+                            (DEFINITION)</p>
+                        <button class="btn-main" style="margin-top: 2.5rem;" onclick="goNext(event)">다음 마스터 ➔</button>
                     </div>
                 </div>
             </div>
@@ -282,22 +426,42 @@
 
         <div id="manage-view">
             <div class="manage-card">
-                <p style="font-size: 0.9rem; margin-bottom: 12px; color: var(--accent); font-weight: 800;">🚀 AI 단어 대량
-                    생성</p>
-                <select id="sel-level">
-                    <option value="preschool basic">👶 어린이 기초</option>
-                    <option value="elementary essential">🎒 초등 필수</option>
-                    <option value="middle school SAT">🏫 중등 내신</option>
-                    <option value="high school academic">🎓 고등/수능 고난도</option>
-                </select>
-                <button id="btn-batch" class="btn-main" onclick="askAIBatch()">✨ AI 단어 50개 누적 추가</button>
-                <div
-                    style="display:flex; justify-content: space-between; margin-top:2rem; font-size:0.8rem; opacity:0.6;">
-                    <span id="list-cnt">현재 총 단어 수 확인 중...</span>
-                    <span style="color:#ff4d4d; cursor:pointer;" onclick="clearAll()">초기화</span>
+                <div class="api-input-wrap">
+                    <p style="font-size: 0.9rem; color: #91b9ff; font-weight: 800; text-align: center;">� 구글 Gemini API
+                        Key 입력</p>
+                    <input type="text" id="gemini-key" placeholder="AI Studio에서 복사한 키 붙여넣기" onchange="saveKey()">
+                    <button class="btn-main"
+                        style="margin-top:12px; font-size:0.75rem; padding:10px; background:rgba(255,255,255,0.1); box-shadow:none;"
+                        onclick="fetchMyModels()">🔄 사용 가능 모델 목록 동기화</button>
                 </div>
-                <div id="list-box"
-                    style="width: 100%; margin-top: 0.8rem; max-height: 200px; overflow-y: auto; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 10px;">
+
+                <div style="margin-bottom: 1.5rem;">
+                    <p style="font-size: 0.8rem; color: rgba(255,255,255,0.4); margin-bottom: 8px; text-align: center;">
+                        🤖 이미지 선별 AI 모델 선택</p>
+                    <select id="sel-model" onchange="updateModelInfo()">
+                        <option value="gemini-1.5-flash">Gemini 1.5 Flash (안정적)</option>
+                        <option value="gemini-2.0-flash">Gemini 2.0 Flash (최신/고품질)</option>
+                    </select>
+                </div>
+
+                <p style="font-size: 1rem; margin-bottom: 12px; color: #10b981; font-weight: 800; text-align: center;">
+                    🚀 하이엔드 비주얼 단어장 생성</p>
+                <select id="sel-level">
+                    <option value="KID">👶 어린이 기초</option>
+                    <option value="ELEM">🎒 초등학교 필수</option>
+                    <option value="MID">🏫 중학교 핵심</option>
+                    <option value="HIGH" selected>🎓 고등학교 고난도</option>
+                </select>
+                <button id="btn-batch" class="btn-main" style="width: 100%;" onclick="askGeminiBatch(100)">✨ AI 비주얼 세트
+                    100개 대량 생성</button>
+
+                <div
+                    style="display:flex; justify-content: space-between; align-items: center; margin-top:3rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 1.5rem;">
+                    <span id="list-cnt" style="font-size:0.9rem; color:rgba(255,255,255,0.4); font-weight:700;">0개 마스터
+                        완료</span>
+                    <button
+                        style="border:none; background:none; color:var(--danger); font-size:0.85rem; font-weight:800; cursor:pointer;"
+                        onclick="clearAll()">리셋(전체삭제)</button>
                 </div>
             </div>
         </div>
@@ -305,131 +469,183 @@
 
     <script>
         let words = [];
-        const FALLBACK = [{ en: 'book', ko: '책', day: '기본', ex: '우리가 읽는 것이에요. 예문: I read a ____.' }];
+        let currentFilter = 'ALL';
+        let idx = 0;
 
         function init() {
-            const saved = localStorage.getItem('voca_list');
-            if (saved) {
-                try { words = JSON.parse(saved); } catch (e) { words = FALLBACK; }
-            } else if (typeof MASTER_WORDS !== 'undefined' && MASTER_WORDS.length > 0) {
-                words = MASTER_WORDS;
-            } else { words = FALLBACK; }
-            if (!words.length) words = FALLBACK;
+            try {
+                const saved = localStorage.getItem('voca_list');
+                words = saved ? JSON.parse(saved) : (window.MASTER_WORDS || []);
+                const key = localStorage.getItem('gemini_api_key');
+                if (key) document.getElementById('gemini-key').value = key;
+                const mod = localStorage.getItem('gemini_model');
+                if (mod) document.getElementById('sel-model').value = mod;
+            } catch (e) { words = []; }
+            saveAndRef();
+            refresh();
+            updateModelInfo();
+        }
+
+        function saveKey() {
+            const val = document.getElementById('gemini-key').value.trim();
+            if (val) localStorage.setItem('gemini_api_key', val);
+        }
+
+        function updateModelInfo() {
+            const name = document.getElementById('sel-model').value;
+            localStorage.setItem('gemini_model', name);
+            const el = document.getElementById('model-info');
+            if (el) el.innerText = `Mode: ${name.toUpperCase().replace('GEMINI-', '')}`;
+        }
+
+        function saveAndRef() {
+            const uniq = []; const seen = new Set();
+            words.forEach(w => {
+                if (!w.en) return;
+                const k = w.en.toLowerCase().trim();
+                if (!seen.has(k)) { seen.add(k); uniq.push(w); }
+            });
+            words = uniq;
             localStorage.setItem('voca_list', JSON.stringify(words));
-            updateInfo();
+            const cntEl = document.getElementById('list-cnt');
+            if (cntEl) cntEl.innerText = `${words.length}개 보유 중`;
         }
 
-        init();
-        let idx = Math.floor(Math.random() * words.length);
-
-        function nav(name) {
-            document.getElementById('learn-view').style.display = (name === 'learn') ? 'block' : 'none';
-            document.getElementById('manage-view').style.display = (name === 'manage') ? 'block' : 'none';
-            document.getElementById('tab-learn').classList.toggle('active', name === 'learn');
-            document.getElementById('tab-manage').classList.toggle('active', name === 'manage');
-            if (name === 'manage') drawList();
+        async function fetchMyModels() {
+            const key = localStorage.getItem('gemini_api_key');
+            if (!key) return;
+            try {
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${key}`);
+                const data = await res.json();
+                if (data.models) {
+                    const sel = document.getElementById('sel-model');
+                    sel.innerHTML = '';
+                    data.models.filter(m => m.supportedGenerationMethods.includes('generateContent'))
+                        .forEach(m => {
+                            const n = m.name.replace('models/', '');
+                            const o = document.createElement('option');
+                            o.value = o.innerText = n; sel.appendChild(o);
+                        });
+                }
+            } catch (e) { }
         }
 
-        async function loadCardData(wordEn) {
-            const current = words[idx % words.length];
-            const exEl = document.getElementById('w-ex');
-            const koEl = document.getElementById('w-ko');
-            const loader = document.getElementById('ex-loader');
+        async function askGeminiBatch(count) {
+            const key = localStorage.getItem('gemini_api_key');
+            if (!key) { alert('API 키를 입력하세요!'); return; }
+            const modelName = document.getElementById('sel-model').value;
+            const level = document.getElementById('sel-level').value;
+            const btn = document.getElementById('btn-batch');
+            btn.innerText = "⏳ 제미나이가 어휘 선별 중..."; btn.disabled = true;
+            try {
+                const prompt = `${level} 영어 단어 ${count}개. 중복 불가. 
+                한국어 수수께끼(ex) 포함. 정답 금지. 
+                JSON 배열만: [{"en":"단어", "ko":"뜻", "ex":"수수께끼"}, ...]`;
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${key}`;
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }],
+                        generationConfig: { responseMimeType: "application/json" }
+                    })
+                });
+                const data = await res.json();
+                const list = JSON.parse(data.candidates[0].content.parts[0].text);
+                const news = list.map(i => ({ en: i.en, ko: i.ko, day: level, ex: i.ex.replace(new RegExp(i.en, 'gi'), "____") }));
+                words = [...news, ...words]; saveAndRef(); refresh();
+                alert('완료! 제미나이가 가져온 생생한 이미지와 함께 공부하세요.');
+            } catch (e) { alert('오류: ' + e.message); }
+            finally { btn.innerText = "AI 비주얼 세트 100개 대량 생성"; btn.disabled = false; }
+        }
 
-            exEl.style.display = 'none';
+        // �️ 제미나이가 이미지용 '최적의 프롬프트'를 생성해서 가져오기
+        async function fetchGeminiVisual(word) {
+            const img = document.getElementById('w-img');
+            const loader = document.getElementById('img-loader');
+            const key = localStorage.getItem('gemini_api_key');
+            const modelName = document.getElementById('sel-model').value;
+
+            img.classList.remove('loaded');
             loader.style.display = 'flex';
-            koEl.innerText = "찾는 중..."; // 뒤집었을 때 대비
 
-            // 1. 뜻(정답)이 없거나 기본 텍스트면 실시간 번역
-            if (!current.ko || current.ko.includes('클릭') || current.ko.includes('뒤에')) {
+            let promptForImg = word; // 기본값
+
+            if (key) {
                 try {
-                    const r = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(wordEn)}&langpair=en|ko`);
-                    const d = await r.json();
-                    current.ko = d.responseData.translatedText;
-                    localStorage.setItem('voca_list', JSON.stringify(words));
-                } catch (e) { current.ko = "뜻 찾기 실패"; }
-            }
-            koEl.innerText = current.ko;
+                    // 제미나이에게 이 단어를 가장 잘 표현하는 이미지를 설명해달라고 합니다.
+                    const prompt = `Write a short, descriptive keyword (max 10 words) for an image that perfectly represents the English word "${word}". 
+                    Focus on visual impact, bright colors, and high quality. No text in image.`;
 
-            // 2. 힌트 가져오기
-            if (current.ex && !current.ex.includes('count')) {
-                showHint(current.ex);
-            } else {
-                try {
-                    const prompt = `Give a simple riddle in Korean for "${wordEn}". NO SPOILERS (don't use the word or its meaning). Add English example with "____". respond ONLY with riddle and example.`;
-                    const res = await fetch(`https://text.pollinations.ai/${encodeURIComponent(prompt)}`);
-                    let text = await res.text();
-                    text = text.replace(new RegExp(wordEn, 'gi'), "____");
-                    current.ex = text;
-                    localStorage.setItem('voca_list', JSON.stringify(words));
-                    showHint(text);
-                } catch (e) { showHint("힌트를 준비하지 못했습니다."); }
+                    const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${key}`;
+                    const res = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                    });
+                    const data = await res.json();
+                    promptForImg = data.candidates[0].content.parts[0].text.trim();
+                } catch (e) { console.log("Gemini Prompt Build Failed, Using Word Itself."); }
             }
-        }
 
-        function showHint(text) {
-            document.getElementById('w-ex').innerText = text;
-            document.getElementById('w-ex').style.display = 'block';
-            document.getElementById('ex-loader').style.display = 'none';
+            // 제미나이가 큐레이션한 프롬프트로 이미지 가져오기
+            const imgUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(promptForImg + ' stunning realistic concept art, ultra hd, cinematic lighting')}?width=600&height=400&nologo=true&seed=${Math.floor(Math.random() * 1000)}`;
+
+            img.src = imgUrl;
+            img.onload = () => {
+                img.classList.add('loaded');
+                loader.style.display = 'none';
+            };
         }
 
         function refresh() {
-            if (!words.length) return;
-            const w = words[idx % words.length];
+            const f = (currentFilter === 'ALL') ? words : words.filter(w => w.day === currentFilter);
+            if (!f.length) {
+                document.getElementById('w-en').innerText = "단어 없음";
+                document.getElementById('prog-info').innerText = "0 / 0";
+                return;
+            }
+            const w = f[idx % f.length];
             document.getElementById('w-en').innerText = w.en;
-            document.getElementById('prog-info').innerText = `${(idx % words.length) + 1} / ${words.length}`;
-            document.getElementById('day-info').innerText = `${w.day || 'AI'} Level`;
-            loadCardData(w.en);
+            document.getElementById('w-ko').innerText = w.ko;
+            document.getElementById('w-ex').innerText = w.ex || "...";
+            document.getElementById('prog-info').innerText = `${(idx % f.length) + 1} / ${f.length}`;
+
+            fetchGeminiVisual(w.en); // �️ 제미나이가 이미지를 큐레이션하도록 지시
         }
+
+        function flipCard() { document.getElementById('card').classList.toggle('flipped'); }
 
         function goNext(e) {
             if (e) e.stopPropagation();
-            document.getElementById('card').classList.remove('flipped');
+            const card = document.getElementById('card');
+            const koText = document.getElementById('w-ko');
+            const img = document.getElementById('w-img');
+
+            koText.style.opacity = "0";
+            img.classList.remove('loaded');
+
+            card.classList.remove('flipped');
             setTimeout(() => {
-                idx = Math.floor(Math.random() * words.length);
-                refresh();
-            }, 300);
+                idx++; refresh();
+                koText.innerText = "";
+                koText.style.opacity = "1";
+            }, 400);
         }
 
-        async function askAIBatch() {
-            const btn = document.getElementById('btn-batch');
-            btn.innerText = "⏳ 50개 수집 중..."; btn.disabled = true;
-            try {
-                const level = document.getElementById('sel-level').value;
-                const prompt = `Give 50 English words for ${level}. Return ONLY a JSON array of strings: ["word1", "word2", ...]. No other text.`;
-                const res = await fetch(`https://text.pollinations.ai/${encodeURIComponent(prompt)}`);
-                const out = await res.text();
-                const list = JSON.parse(out.replace(/```json|```/g, "").trim());
-
-                if (Array.isArray(list)) {
-                    const news = list.map(en => ({ en, ko: '번역 대기 중', day: level.split(" ")[0].toUpperCase() }));
-                    words = [...news, ...words];
-                    localStorage.setItem('voca_list', JSON.stringify(words));
-                    drawList(); updateInfo(); alert('50개가 추가되었습니다! 학습 탭을 눌러보세요.');
-                    refresh();
-                }
-            } catch (e) { alert('AI 지연! 다시 눌러주세요.'); }
-            finally { btn.innerText = "✨ AI 단어 50개 누적 추가"; btn.disabled = false; }
+        function setFilter(l, b) {
+            currentFilter = l;
+            document.querySelectorAll('.lv-btn').forEach(btn => btn.classList.remove('active'));
+            b.classList.add('active'); idx = 0; refresh();
         }
-
-        function drawList() {
-            const b = document.getElementById('list-box');
-            if (b) b.innerHTML = words.slice(0, 100).map(w => `<div style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.05); font-size:0.85rem;"><b>${w.en}</b></div>`).join('');
+        function clearAll() { if (confirm('리셋하시겠습니까?')) { words = []; localStorage.removeItem('voca_list'); init(); } }
+        function nav(n) {
+            document.getElementById('learn-view').style.display = (n === 'learn') ? 'block' : 'none';
+            document.getElementById('manage-view').style.display = (n === 'manage') ? 'block' : 'none';
+            document.getElementById('tab-learn').classList.toggle('active', n === 'learn');
+            document.getElementById('tab-manage').classList.toggle('active', n === 'manage');
         }
-
-        function updateInfo() {
-            const info = document.getElementById('list-cnt');
-            if (info) info.innerText = `현재 총 ${words.length}개의 단어 보유 중`;
-        }
-
-        function clearAll() {
-            if (confirm('모든 단어를 리셋할까요?')) {
-                localStorage.removeItem('voca_list');
-                location.reload();
-            }
-        }
-
-        window.onload = refresh;
+        window.onload = init;
     </script>
 </body>
 
