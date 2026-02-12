@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Word Master | Gemini Visual Pro</title>
+    <title>AI Word Master | Powered by 날아라메뚜기</title>
     <script src="vocabulary.js" onerror="window.MASTER_WORDS=[]"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -43,6 +43,9 @@
             width: 100%;
             max-width: 450px;
             position: relative;
+            min-height: calc(100vh - 2rem);
+            display: flex;
+            flex-direction: column;
         }
 
         .header h1 {
@@ -73,7 +76,7 @@
             border: 1px solid rgba(255, 255, 255, 0.08);
             opacity: 0.4;
             font-weight: 700;
-            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: 0.3s;
         }
 
         .tab.active {
@@ -87,7 +90,7 @@
         .card-container {
             perspective: 2000px;
             width: 100%;
-            aspect-ratio: 3/5.6;
+            aspect-ratio: 3/5.8;
             cursor: pointer;
             margin-bottom: 1.5rem;
         }
@@ -115,7 +118,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 2rem 1.6rem;
+            padding: 1.8rem 1.6rem;
             background: rgba(20, 20, 25, 0.8);
             backdrop-filter: blur(20px);
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
@@ -130,7 +133,7 @@
         .word-text {
             font-size: clamp(2.2rem, 10vw, 3.5rem);
             font-weight: 800;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.2rem;
             text-align: center;
             color: #fff;
             letter-spacing: -2px;
@@ -144,10 +147,9 @@
             text-shadow: 0 0 30px rgba(255, 255, 255, 0.2);
         }
 
-        /* 🖼️ Gemini 픽 이미지 캔버스 */
         .visual-box {
             width: 100%;
-            height: 220px;
+            height: 210px;
             border-radius: 28px;
             margin-bottom: 1.2rem;
             background: #000;
@@ -164,47 +166,54 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: 0.8s ease;
-            opacity: 0;
-            transform: scale(1.1);
+            transition: 0.6s ease;
+            filter: blur(25px);
+            opacity: 0.3;
         }
 
-        .visual-box img.loaded {
+        .visual-box img.revealed {
+            filter: blur(0);
             opacity: 1;
-            transform: scale(1);
         }
 
-        .img-overlay {
+        .reveal-overlay {
             position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            padding: 10px;
-            background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
-            font-size: 0.65rem;
-            color: rgba(255, 255, 255, 0.6);
-            text-align: center;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 5;
+            transition: 0.3s;
+        }
+
+        .reveal-overlay span {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.8rem;
             font-weight: 700;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            backdrop-filter: blur(5px);
+        }
+
+        .reveal-overlay:hover span {
+            background: rgba(66, 133, 244, 0.4);
+            transform: scale(1.05);
         }
 
         .img-loader {
             position: absolute;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: #4285f4;
             font-weight: 700;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 12px;
-        }
-
-        .spinner-m {
-            width: 30px;
-            height: 30px;
-            border: 3px solid rgba(66, 133, 244, 0.1);
-            border-top-color: #4285f4;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
+            gap: 8px;
+            z-index: 2;
         }
 
         .explanation-box {
@@ -219,14 +228,24 @@
             flex-direction: column;
             justify-content: center;
             text-align: center;
+            min-height: 100px;
+            overflow: hidden;
         }
 
         .ex-text {
-            font-size: 1.2rem;
-            line-height: 1.6;
+            font-size: 1.15rem;
+            line-height: 1.5;
             color: #e4e4e7;
             font-weight: 600;
             word-break: keep-all;
+            filter: blur(15px);
+            transition: 0.4s;
+            pointer-events: none;
+        }
+
+        .ex-text.revealed {
+            filter: blur(0);
+            pointer-events: auto;
         }
 
         .ex-tag {
@@ -247,29 +266,45 @@
             background: var(--gemini-grad);
             border: none;
             color: white;
-            padding: 1.2rem;
+            padding: 1.1rem;
             border-radius: 24px;
             font-weight: 800;
             width: 100%;
             cursor: pointer;
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             box-shadow: 0 15px 30px -10px rgba(66, 133, 244, 0.5);
         }
 
         .btn-main:hover {
             transform: translateY(-3px);
-            box-shadow: 0 20px 40px -10px rgba(66, 133, 244, 0.6);
         }
 
         .btn-main:active {
             transform: scale(0.96);
         }
 
-        .btn-main:disabled {
-            opacity: 0.5;
-            cursor: wait;
-            filter: grayscale(1);
+        /* 🎖️ 제작자 브랜딩 푸터 */
+        .footer {
+            margin-top: auto;
+            padding: 2rem 0;
+            text-align: center;
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.25);
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            transition: 0.4s;
+            cursor: default;
+        }
+
+        .footer:hover {
+            color: #91b9ff;
+            transform: scale(1.02);
+        }
+
+        .footer .author {
+            color: var(--accent);
+            opacity: 0.8;
         }
 
         #manage-view {
@@ -282,7 +317,6 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 35px;
             padding: 2rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .api-input-wrap {
@@ -295,21 +329,14 @@
 
         input[type="text"] {
             width: 100%;
-            padding: 1rem;
+            padding: 0.9rem;
             border-radius: 15px;
             background: #000;
-            border: 1px solid rgba(66, 133, 244, 0.4);
+            border: 1px solid rgba(66, 133, 244, 0.3);
             color: #91b9ff;
             margin-top: 10px;
             font-family: monospace;
-            font-size: 0.85rem;
             outline: none;
-            transition: 0.3s;
-        }
-
-        input[type="text"]:focus {
-            border-color: #4285f4;
-            box-shadow: 0 0 15px rgba(66, 133, 244, 0.2);
         }
 
         select {
@@ -317,42 +344,35 @@
             padding: 1rem;
             border-radius: 20px;
             background: #1a1a2e;
-            border: 1px solid rgba(66, 133, 244, 0.3);
+            border: 1px solid rgba(66, 133, 244, 0.2);
             color: white;
             margin-bottom: 12px;
             font-weight: 700;
-            font-size: 1rem;
             text-align: center;
-            appearance: none;
         }
 
         .level-selector {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             overflow-x: auto;
-            padding: 10px 5px;
-            margin-bottom: 15px;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
             scrollbar-width: none;
         }
 
         .lv-btn {
             flex-shrink: 0;
-            padding: 10px 18px;
+            padding: 9px 16px;
             border-radius: 15px;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
             font-size: 0.85rem;
             color: #fff;
             cursor: pointer;
-            transition: 0.3s;
-            font-weight: 700;
         }
 
         .lv-btn.active {
             background: #10b981;
-            color: #fff;
-            font-weight: 800;
-            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3);
             border-color: #10b981;
         }
 
@@ -376,9 +396,11 @@
             <div id="tab-manage" class="tab" onclick="nav('manage')">AI 설정</div>
         </div>
 
+        <!-- 학습 뷰 -->
         <div id="learn-view">
             <div class="level-selector">
                 <div class="lv-btn active" onclick="setFilter('ALL', this)">전체</div>
+                <div class="lv-btn" onclick="setFilter('TRAVEL', this)">여행</div>
                 <div class="lv-btn" onclick="setFilter('KID', this)">어린이</div>
                 <div class="lv-btn" onclick="setFilter('ELEM', this)">초등</div>
                 <div class="lv-btn" onclick="setFilter('MID', this)">중등</div>
@@ -386,10 +408,9 @@
             </div>
 
             <div
-                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding: 0 10px;">
-                <span id="model-info" style="color: #91b9ff; font-weight: 800; font-size: 0.9rem;">Mode:
-                    GEMINI-PRO</span>
-                <span id="prog-info" style="color: rgba(255,255,255,0.4); font-size: 0.85rem; font-weight: 700;">0 /
+                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem; padding: 0 10px;">
+                <span id="model-info" style="color: #91b9ff; font-weight: 800; font-size: 0.85rem;">Mode: ACTIVE</span>
+                <span id="prog-info" style="color: rgba(255,255,255,0.3); font-size: 0.8rem; font-weight: 800;">0 /
                     0</span>
             </div>
 
@@ -397,74 +418,76 @@
                 <div class="card-inner">
                     <div class="card-front">
                         <div id="w-en" class="word-text">Loading...</div>
-
-                        <!-- �️ Gemini 픽 이미지 캔버스 -->
-                        <div class="visual-box" id="visual-box">
+                        <div class="visual-box">
                             <div class="img-loader" id="img-loader">
-                                <div class="spinner-m"></div>
-                                <span>제미나이가 그림 가져오는 중...</span>
+                                <div
+                                    style="width:20px;height:20px;border:3px solid rgba(66,133,244,0.1);border-top-color:#4285f4;border-radius:50%;animation:spin 0.8s linear infinite;">
+                                </div>
                             </div>
                             <img id="w-img" src="" alt="visual">
-                            <div class="img-overlay">✨ Gemini Selection</div>
+                            <div class="reveal-overlay" id="img-reveal" onclick="revealElement('img', event)">
+                                <span>🖼️ 사진 보기</span>
+                            </div>
                         </div>
-
                         <div class="explanation-box">
                             <span class="ex-tag">✨ Gemini Quiz</span>
                             <div id="w-ex" class="ex-text">...</div>
+                            <div class="reveal-overlay" id="ex-reveal" onclick="revealElement('ex', event)">
+                                <span>🔍 힌트 보기</span>
+                            </div>
                         </div>
                     </div>
                     <div class="card-back">
                         <div id="w-ko" class="meaning-text">...</div>
-                        <p
-                            style="margin-top: 1.5rem; color: rgba(255,255,255,0.3); font-size: 0.8rem; font-weight: 800;">
-                            (DEFINITION)</p>
                         <button class="btn-main" style="margin-top: 2.5rem;" onclick="goNext(event)">다음 마스터 ➔</button>
                     </div>
                 </div>
             </div>
         </div>
 
+        <!-- 관리 뷰 -->
         <div id="manage-view">
             <div class="manage-card">
                 <div class="api-input-wrap">
-                    <p style="font-size: 0.9rem; color: #91b9ff; font-weight: 800; text-align: center;">� 구글 Gemini API
-                        Key 입력</p>
-                    <input type="text" id="gemini-key" placeholder="AI Studio에서 복사한 키 붙여넣기" onchange="saveKey()">
-                    <button class="btn-main"
-                        style="margin-top:12px; font-size:0.75rem; padding:10px; background:rgba(255,255,255,0.1); box-shadow:none;"
-                        onclick="fetchMyModels()">🔄 사용 가능 모델 목록 동기화</button>
+                    <p style="font-size: 0.85rem; color: #91b9ff; font-weight: 800; text-align: center;">🔑 Gemini API
+                        Key</p>
+                    <input type="text" id="gemini-key" placeholder="키를 붙여넣으세요" onchange="saveKey()">
                 </div>
-
                 <div style="margin-bottom: 1.5rem;">
-                    <p style="font-size: 0.8rem; color: rgba(255,255,255,0.4); margin-bottom: 8px; text-align: center;">
-                        🤖 이미지 선별 AI 모델 선택</p>
+                    <p
+                        style="font-size: 0.75rem; color: rgba(255,255,255,0.3); margin-bottom: 6px; text-align: center;">
+                        🤖 AI 모델 선택</p>
                     <select id="sel-model" onchange="updateModelInfo()">
-                        <option value="gemini-1.5-flash">Gemini 1.5 Flash (안정적)</option>
-                        <option value="gemini-2.0-flash">Gemini 2.0 Flash (최신/고품질)</option>
+                        <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
+                        <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
                     </select>
                 </div>
-
-                <p style="font-size: 1rem; margin-bottom: 12px; color: #10b981; font-weight: 800; text-align: center;">
-                    🚀 하이엔드 비주얼 단어장 생성</p>
+                <p
+                    style="font-size: 0.95rem; margin-bottom: 12px; color: #10b981; font-weight: 800; text-align: center;">
+                    🚀 AI 영단어 생성</p>
                 <select id="sel-level">
+                    <option value="TRAVEL">✈️ 필수 여행 어휘</option>
                     <option value="KID">👶 어린이 기초</option>
                     <option value="ELEM">🎒 초등학교 필수</option>
                     <option value="MID">🏫 중학교 핵심</option>
-                    <option value="HIGH" selected>🎓 고등학교 고난도</option>
+                    <option value="HIGH" selected>🎓 고등학교 수능</option>
                 </select>
-                <button id="btn-batch" class="btn-main" style="width: 100%;" onclick="askGeminiBatch(100)">✨ AI 비주얼 세트
-                    100개 대량 생성</button>
-
+                <button id="btn-batch" class="btn-main" style="width: 100%;" onclick="askGeminiBatch(100)">AI 100개 세트
+                    생성</button>
                 <div
-                    style="display:flex; justify-content: space-between; align-items: center; margin-top:3rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 1.5rem;">
-                    <span id="list-cnt" style="font-size:0.9rem; color:rgba(255,255,255,0.4); font-weight:700;">0개 마스터
-                        완료</span>
+                    style="display:flex; justify-content: space-between; margin-top:2.5rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 1.5rem;">
+                    <span id="list-cnt" style="font-size:0.85rem; color:rgba(255,255,255,0.3);">0개 보유</span>
                     <button
-                        style="border:none; background:none; color:var(--danger); font-size:0.85rem; font-weight:800; cursor:pointer;"
-                        onclick="clearAll()">리셋(전체삭제)</button>
+                        style="border:none; background:none; color:var(--danger); font-size:0.8rem; font-weight:800; cursor:pointer;"
+                        onclick="clearAll()">리셋</button>
                 </div>
             </div>
         </div>
+
+        <!-- 🏅 제작자 날아라메뚜기 브랜딩 -->
+        <footer class="footer">
+            CREATED BY <span class="author">날아라메뚜기</span>
+        </footer>
     </main>
 
     <script>
@@ -473,17 +496,13 @@
         let idx = 0;
 
         function init() {
-            try {
-                const saved = localStorage.getItem('voca_list');
-                words = saved ? JSON.parse(saved) : (window.MASTER_WORDS || []);
-                const key = localStorage.getItem('gemini_api_key');
-                if (key) document.getElementById('gemini-key').value = key;
-                const mod = localStorage.getItem('gemini_model');
-                if (mod) document.getElementById('sel-model').value = mod;
-            } catch (e) { words = []; }
-            saveAndRef();
-            refresh();
-            updateModelInfo();
+            const saved = localStorage.getItem('voca_list');
+            words = saved ? JSON.parse(saved) : (window.MASTER_WORDS || []);
+            const key = localStorage.getItem('gemini_api_key');
+            if (key) document.getElementById('gemini-key').value = key;
+            const mod = localStorage.getItem('gemini_model');
+            if (mod) document.getElementById('sel-model').value = mod;
+            saveAndRef(); refresh(); updateModelInfo();
         }
 
         function saveKey() {
@@ -511,137 +530,91 @@
             if (cntEl) cntEl.innerText = `${words.length}개 보유 중`;
         }
 
-        async function fetchMyModels() {
-            const key = localStorage.getItem('gemini_api_key');
-            if (!key) return;
-            try {
-                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${key}`);
-                const data = await res.json();
-                if (data.models) {
-                    const sel = document.getElementById('sel-model');
-                    sel.innerHTML = '';
-                    data.models.filter(m => m.supportedGenerationMethods.includes('generateContent'))
-                        .forEach(m => {
-                            const n = m.name.replace('models/', '');
-                            const o = document.createElement('option');
-                            o.value = o.innerText = n; sel.appendChild(o);
-                        });
-                }
-            } catch (e) { }
-        }
-
         async function askGeminiBatch(count) {
             const key = localStorage.getItem('gemini_api_key');
             if (!key) { alert('API 키를 입력하세요!'); return; }
             const modelName = document.getElementById('sel-model').value;
             const level = document.getElementById('sel-level').value;
             const btn = document.getElementById('btn-batch');
-            btn.innerText = "⏳ 제미나이가 어휘 선별 중..."; btn.disabled = true;
+            btn.innerText = "⏳ 생성 중..."; btn.disabled = true;
             try {
-                const prompt = `${level} 영어 단어 ${count}개. 중복 불가. 
-                한국어 수수께끼(ex) 포함. 정답 금지. 
-                JSON 배열만: [{"en":"단어", "ko":"뜻", "ex":"수수께끼"}, ...]`;
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${key}`;
-                const res = await fetch(url, {
+                let context = level === 'TRAVEL' ? "여행 단어" : level;
+                const prompt = `${context} 영어 단어 ${count}개. 중복 불가. 힌트(ex) 포함. JSON 배열만: [{"en":"단어", "ko":"뜻", "ex":"수수께끼"}, ...]`;
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${key}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: prompt }] }],
-                        generationConfig: { responseMimeType: "application/json" }
-                    })
+                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } })
                 });
                 const data = await res.json();
                 const list = JSON.parse(data.candidates[0].content.parts[0].text);
-                const news = list.map(i => ({ en: i.en, ko: i.ko, day: level, ex: i.ex.replace(new RegExp(i.en, 'gi'), "____") }));
-                words = [...news, ...words]; saveAndRef(); refresh();
-                alert('완료! 제미나이가 가져온 생생한 이미지와 함께 공부하세요.');
-            } catch (e) { alert('오류: ' + e.message); }
-            finally { btn.innerText = "AI 비주얼 세트 100개 대량 생성"; btn.disabled = false; }
+                words = [...list.map(i => ({ ...i, day: level })), ...words];
+                saveAndRef(); refresh(); alert('성공!');
+            } catch (e) { alert('오출: ' + e.message); }
+            finally { btn.innerText = "AI 100개 세트 생성"; btn.disabled = false; }
         }
 
-        // �️ 제미나이가 이미지용 '최적의 프롬프트'를 생성해서 가져오기
         async function fetchGeminiVisual(word) {
             const img = document.getElementById('w-img');
             const loader = document.getElementById('img-loader');
             const key = localStorage.getItem('gemini_api_key');
             const modelName = document.getElementById('sel-model').value;
-
-            img.classList.remove('loaded');
-            loader.style.display = 'flex';
-
-            let promptForImg = word; // 기본값
-
+            img.classList.remove('revealed'); loader.style.display = 'flex';
+            let p = word;
             if (key) {
                 try {
-                    // 제미나이에게 이 단어를 가장 잘 표현하는 이미지를 설명해달라고 합니다.
-                    const prompt = `Write a short, descriptive keyword (max 10 words) for an image that perfectly represents the English word "${word}". 
-                    Focus on visual impact, bright colors, and high quality. No text in image.`;
-
-                    const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${key}`;
-                    const res = await fetch(url, {
+                    const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${key}`, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                        body: JSON.stringify({ contents: [{ parts: [{ text: `3 keywords for ${word}` }] }] })
                     });
-                    const data = await res.json();
-                    promptForImg = data.candidates[0].content.parts[0].text.trim();
-                } catch (e) { console.log("Gemini Prompt Build Failed, Using Word Itself."); }
+                    const d = await r.json(); p = d.candidates[0].content.parts[0].text.trim();
+                } catch (e) { }
             }
+            img.src = `https://image.pollinations.ai/prompt/${encodeURIComponent(p + ' cinematic')}?width=500&height=350&nologo=true&seed=${Math.floor(Math.random() * 999)}`;
+            img.onload = () => { loader.style.display = 'none'; };
+        }
 
-            // 제미나이가 큐레이션한 프롬프트로 이미지 가져오기
-            const imgUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(promptForImg + ' stunning realistic concept art, ultra hd, cinematic lighting')}?width=600&height=400&nologo=true&seed=${Math.floor(Math.random() * 1000)}`;
-
-            img.src = imgUrl;
-            img.onload = () => {
-                img.classList.add('loaded');
-                loader.style.display = 'none';
-            };
+        function revealElement(type, e) {
+            if (e) e.stopPropagation();
+            if (type === 'img') {
+                document.getElementById('w-img').classList.add('revealed');
+                document.getElementById('img-reveal').style.display = 'none';
+            } else {
+                document.getElementById('w-ex').classList.add('revealed');
+                document.getElementById('ex-reveal').style.display = 'none';
+            }
         }
 
         function refresh() {
             const f = (currentFilter === 'ALL') ? words : words.filter(w => w.day === currentFilter);
-            if (!f.length) {
-                document.getElementById('w-en').innerText = "단어 없음";
-                document.getElementById('prog-info').innerText = "0 / 0";
-                return;
-            }
+            if (!f.length) { document.getElementById('w-en').innerText = "Empty"; return; }
             const w = f[idx % f.length];
             document.getElementById('w-en').innerText = w.en;
             document.getElementById('w-ko').innerText = w.ko;
             document.getElementById('w-ex').innerText = w.ex || "...";
             document.getElementById('prog-info').innerText = `${(idx % f.length) + 1} / ${f.length}`;
-
-            fetchGeminiVisual(w.en); // �️ 제미나이가 이미지를 큐레이션하도록 지시
+            document.getElementById('w-img').classList.remove('revealed');
+            document.getElementById('img-reveal').style.display = 'flex';
+            document.getElementById('w-ex').classList.remove('revealed');
+            document.getElementById('ex-reveal').style.display = 'flex';
+            fetchGeminiVisual(w.en);
         }
 
         function flipCard() { document.getElementById('card').classList.toggle('flipped'); }
-
         function goNext(e) {
             if (e) e.stopPropagation();
-            const card = document.getElementById('card');
-            const koText = document.getElementById('w-ko');
-            const img = document.getElementById('w-img');
-
-            koText.style.opacity = "0";
-            img.classList.remove('loaded');
-
-            card.classList.remove('flipped');
-            setTimeout(() => {
-                idx++; refresh();
-                koText.innerText = "";
-                koText.style.opacity = "1";
-            }, 400);
+            const ko = document.getElementById('w-ko'); ko.style.opacity = "0";
+            document.getElementById('card').classList.remove('flipped');
+            setTimeout(() => { idx++; refresh(); ko.innerText = ""; ko.style.opacity = "1"; }, 400);
         }
-
         function setFilter(l, b) {
             currentFilter = l;
             document.querySelectorAll('.lv-btn').forEach(btn => btn.classList.remove('active'));
             b.classList.add('active'); idx = 0; refresh();
         }
-        function clearAll() { if (confirm('리셋하시겠습니까?')) { words = []; localStorage.removeItem('voca_list'); init(); } }
+        function clearAll() { if (confirm('Reset?')) { words = []; localStorage.removeItem('voca_list'); init(); } }
         function nav(n) {
-            document.getElementById('learn-view').style.display = (n === 'learn') ? 'block' : 'none';
-            document.getElementById('manage-view').style.display = (n === 'manage') ? 'block' : 'none';
+            document.getElementById('learn-view').style.display = n === 'learn' ? 'block' : 'none';
+            document.getElementById('manage-view').style.display = n === 'manage' ? 'block' : 'none';
             document.getElementById('tab-learn').classList.toggle('active', n === 'learn');
             document.getElementById('tab-manage').classList.toggle('active', n === 'manage');
         }
