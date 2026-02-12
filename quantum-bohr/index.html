@@ -4,9 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Word Master | 긴급 수리 완료</title>
-    <!-- 데이터 파일이 없어도 오류 안 나게 처리 -->
-    <script src="vocabulary.js" onerror="console.log('Using fallback data')"></script>
+    <title>AI Word Master | 수수께끼 퀴즈 모드</title>
+    <script src="vocabulary.js" onerror="window.MASTER_WORDS=[]"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
@@ -78,7 +77,6 @@
             opacity: 1;
             color: white;
             border-color: var(--primary);
-            box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3);
         }
 
         .card-container {
@@ -140,35 +138,37 @@
 
         .explanation-box {
             width: 100%;
-            min-height: 180px;
-            padding: 1.2rem;
-            border-radius: 22px;
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px dashed rgba(255, 255, 255, 0.2);
+            min-height: 200px;
+            padding: 1.5rem;
+            border-radius: 24px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(255, 255, 255, 0.08);
             position: relative;
             display: flex;
-            align-items: center;
+            flex-direction: column;
             justify-content: center;
+            text-align: center;
         }
 
         .ex-text {
-            font-size: 0.95rem;
-            line-height: 1.6;
-            color: #e9ecef;
-            text-align: center;
-            font-style: italic;
+            font-size: 1rem;
+            line-height: 1.7;
+            color: #f8f9fa;
+            font-weight: 500;
+            word-break: keep-all;
         }
 
         .ex-tag {
             position: absolute;
-            top: -10px;
-            left: 15px;
-            background: var(--accent);
+            top: -12px;
+            left: 20px;
+            background: #FFD93D;
             color: #000;
-            font-size: 0.65rem;
-            padding: 3px 10px;
-            border-radius: 8px;
+            font-size: 0.7rem;
+            padding: 4px 12px;
+            border-radius: 10px;
             font-weight: 800;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
         }
 
         .btn-main {
@@ -182,11 +182,15 @@
             cursor: pointer;
             transition: 0.3s;
             font-size: 1.1rem;
-            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.2);
         }
 
         .btn-main:active {
             transform: scale(0.96);
+        }
+
+        .btn-main:disabled {
+            opacity: 0.5;
+            cursor: wait;
         }
 
         #manage-view {
@@ -203,6 +207,7 @@
             color: white;
             margin-bottom: 10px;
             font-size: 1rem;
+            font-weight: 700;
         }
 
         .loading-wrap {
@@ -241,85 +246,78 @@
             <div id="tab-manage" class="tab" onclick="nav('manage')">관리</div>
         </div>
 
+        <!-- LEARN VIEW -->
         <div id="learn-view">
             <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; padding: 0 5px;">
-                <span id="day-info" style="color: var(--accent); font-weight: 800; font-size: 0.8rem;">Ready</span>
+                <span id="day-info" style="color: var(--accent); font-weight: 800; font-size: 0.8rem;">Quiz Mode</span>
                 <span id="prog-info" style="opacity: 0.5; font-size: 0.8rem;">0 / 0</span>
             </div>
 
             <div class="card-container" id="card" onclick="document.getElementById('card').classList.toggle('flipped')">
                 <div class="card-inner">
                     <div class="card-front">
-                        <div id="w-en" class="word-text">Loading...</div>
+                        <div id="w-en" class="word-text">...</div>
                         <div class="explanation-box">
-                            <span class="ex-tag">AI 족집게 설명</span>
+                            <span class="ex-tag">🔎 정답 유추 힌트</span>
                             <div class="loading-wrap" id="ex-loader">
                                 <div class="spinner"></div>
-                                <div style="font-size:0.75rem; color:var(--accent); margin-top:10px;">AI 설명 불러오는 중...
+                                <div style="font-size:0.75rem; color:var(--accent); margin-top:10px;">AI 수수께끼 생성 중...
                                 </div>
                             </div>
                             <div id="w-ex" class="ex-text" style="display:none"></div>
                         </div>
-                        <p style="margin-top: 1.5rem; opacity: 0.4; font-size: 0.7rem;">카드를 터치하면 뜻이 보입니다</p>
+                        <p style="margin-top: 1.5rem; opacity: 0.4; font-size: 0.7rem; font-weight: 600;">카드를 터치하면 정답이
+                            공개됩니다</p>
                     </div>
                     <div class="card-back">
                         <div id="w-ko" class="meaning-text">...</div>
-                        <button class="btn-main" style="margin-top: 3rem;" onclick="goNext(event)">다음 단어 학습하기 ➔</button>
+                        <button class="btn-main" style="margin-top: 3.2rem;" onclick="goNext(event)">다음 문제 ➔</button>
                     </div>
                 </div>
             </div>
         </div>
 
+        <!-- MANAGE VIEW -->
         <div id="manage-view">
             <div class="card-front" style="position:static; height: auto;">
                 <div
-                    style="width: 100%; margin-bottom: 1.5rem; background: rgba(99, 102, 241, 0.1); padding: 1.2rem; border-radius: 20px; border: 1px solid var(--primary);">
-                    <p style="font-size: 0.85rem; margin-bottom: 15px; color: var(--accent); font-weight: 800;">🤖 AI 대량
-                        생성 & 데이터 파일</p>
+                    style="width: 100%; margin-bottom: 1.5rem; background: rgba(99, 102, 241, 0.15); padding: 1.3rem; border-radius: 25px; border: 2px solid var(--primary);">
+                    <p style="font-size: 0.9rem; margin-bottom: 15px; color: var(--accent); font-weight: 800;">🤖 AI
+                        수수께끼 단어장 생성기</p>
                     <select id="sel-level">
-                        <option value="어린이">👶 어린이용</option>
-                        <option value="초등학교">🎒 초등학생 필수</option>
-                        <option value="중학교">🏫 중학생 내신 필수</option>
-                        <option value="고등학교">🎓 고등학생/수능 고난도</option>
+                        <option value="preschool children basic">👶 어린이 기초 한글/영어</option>
+                        <option value="elementary school essential">🎒 초등 필수 기초</option>
+                        <option value="middle school curriculum">🏫 중학생 내신 필수</option>
+                        <option value="high school academic">🎓 고등학생/수능 고난도</option>
                     </select>
-                    <button id="btn-batch" class="btn-main" onclick="askAIBatch()">✨ AI 단어 100개 설명까지 생성</button>
+                    <button id="btn-batch" class="btn-main" onclick="askAIBatch()">✨ AI 단어 50개 즉시 추가</button>
                     <button class="btn-main"
                         style="margin-top:10px; background: rgba(255,255,255,0.05); font-size:0.9rem;"
-                        onclick="exportToFile()">💾 텍스트 파일로 저장</button>
-                    <button class="btn-main"
-                        style="margin-top:10px; background: rgba(255,77,77,0.1); color:#ff4d4d; font-size:0.9rem;"
-                        onclick="clearAll()">� 전체 초기화</button>
+                        onclick="exportToFile()">💾 텍스트 파일로 백업</button>
                 </div>
-                <div id="list-box" style="width: 100%; max-height: 250px; overflow-y: auto;"></div>
+                <div id="list-box" style="width: 100%; max-height: 300px; overflow-y: auto; padding-right: 5px;"></div>
             </div>
         </div>
     </main>
 
     <script>
-        // 1. 데이터 초기화 (가장 중요: 비어있을 때 방어)
-        const FALLBACK = [{ en: 'phenomenon', ko: '현상', day: 'HIGH', ex: '관찰 가능한 사건이나 상황을 말합니다. 예: Rare phenomenon (희귀 현상)' }];
         let words = [];
+        const FALLBACK = [{ en: 'phenomenon', ko: '현상', day: 'HIGH', ex: '자연이나 기상에서 일상적으로 일어나지 않는 특별한 일을 말해요. 예문: This is a rare ____.' }];
 
-        function initData() {
-            try {
-                const stored = localStorage.getItem('voca_list');
-                const parsed = stored ? JSON.parse(stored) : null;
-
-                // 로컬 저장소가 비어있으면 MASTER_WORDS(파일) 또는 FALLBACK 사용
-                if (parsed && Array.isArray(parsed) && parsed.length > 0) {
-                    words = parsed;
-                } else if (typeof MASTER_WORDS !== 'undefined' && MASTER_WORDS.length > 0) {
-                    words = MASTER_WORDS;
-                } else {
-                    words = FALLBACK;
-                }
-            } catch (e) {
+        function init() {
+            const saved = localStorage.getItem('voca_list');
+            if (saved) {
+                try { words = JSON.parse(saved); } catch (e) { words = FALLBACK; }
+            } else if (typeof MASTER_WORDS !== 'undefined' && MASTER_WORDS.length > 0) {
+                words = MASTER_WORDS;
+            } else {
                 words = FALLBACK;
             }
+            if (!words.length) words = FALLBACK;
             localStorage.setItem('voca_list', JSON.stringify(words));
         }
 
-        initData();
+        init();
         let idx = Math.floor(Math.random() * words.length);
 
         function nav(name) {
@@ -330,26 +328,33 @@
             if (name === 'manage') drawList();
         }
 
-        async function fetchExplanation(wordEn) {
+        async function fetchEx(wordEn) {
             const current = words[idx % words.length];
-            if (!current) return;
-
             const exEl = document.getElementById('w-ex');
             const loader = document.getElementById('ex-loader');
             exEl.style.display = 'none';
             loader.style.display = 'flex';
 
-            if (current.ex) {
+            // 저장된 설명이 있으면 바로 사용 (초고속)
+            if (current.ex && !current.ex.includes(wordEn)) {
                 showEx(current.ex);
-            } else {
-                try {
-                    const prompt = `Explain "${wordEn}" in one Korean sentence and one English example. Simple. Max 60 chars.`;
-                    const res = await fetch(`https://text.pollinations.ai/${encodeURIComponent(prompt)}`);
-                    const text = await res.text();
-                    current.ex = text;
-                    localStorage.setItem('voca_list', JSON.stringify(words));
-                    showEx(text);
-                } catch (e) { showEx("AI가 설명 준비 중입니다!"); }
+                return;
+            }
+
+            try {
+                // 수수께끼 모드 프롬프트: 단어 이름과 한글 뜻 절대 금지
+                const prompt = `Describe purely the context or meaning of "${wordEn}" in Korean WITHOUT using the word "${wordEn}" itself or its direct Korean translation. Make it like a riddle. Also provide one English example sentence where "${wordEn}" is replaced by "____". Keep it total under 80 chars. No greeting.`;
+                const res = await fetch(`https://text.pollinations.ai/${encodeURIComponent(prompt)}`);
+                let text = await res.text();
+
+                // 혹시 모를 스포일러 방역
+                text = text.replace(new RegExp(wordEn, 'gi'), "____");
+
+                current.ex = text;
+                localStorage.setItem('voca_list', JSON.stringify(words));
+                showEx(text);
+            } catch (e) {
+                showEx("AI가 고뇌 중입니다. 정답을 맞춰보세요!");
             }
         }
 
@@ -360,16 +365,13 @@
         }
 
         function refresh() {
-            if (!words || words.length === 0) {
-                document.getElementById('w-en').innerText = "데이터 없음";
-                return;
-            }
+            if (!words.length) return;
             const w = words[idx % words.length];
             document.getElementById('w-en').innerText = w.en;
             document.getElementById('w-ko').innerText = w.ko;
             document.getElementById('day-info').innerText = `${w.day || 'AI'} Level`;
             document.getElementById('prog-info').innerText = `${(idx % words.length) + 1} / ${words.length}`;
-            fetchExplanation(w.en);
+            fetchEx(w.en);
         }
 
         function goNext(e) {
@@ -378,46 +380,49 @@
             setTimeout(() => {
                 idx = Math.floor(Math.random() * words.length);
                 refresh();
-            }, 250);
+            }, 300);
         }
 
         async function askAIBatch() {
             const btn = document.getElementById('btn-batch');
-            btn.innerText = "⏳ 생성 중..."; btn.disabled = true;
+            btn.innerText = "⏳ 50개 데이터 수집 중... (약 10초)";
+            btn.disabled = true;
             try {
                 const level = document.getElementById('sel-level').value;
-                const prompt = `Generate 100 English words for ${level} level. Format as JSON: [{"en":"word","ko":"뜻","ex":"설명&예문"}, ...]`;
+                const prompt = `Give me 50 English words for ${level}. Respond ONLY with a clean JSON array of strings: ["word1", "word2", ...]. No markdown, no extra text.`;
                 const res = await fetch(`https://text.pollinations.ai/${encodeURIComponent(prompt)}`);
                 const out = await res.text();
-                const json = JSON.parse(out.replace(/```json|```/g, "").trim());
-                words = [...json, ...words];
-                localStorage.setItem('voca_list', JSON.stringify(words));
-                drawList(); alert('100개 추가 완료!');
-                refresh();
-            } catch (e) { alert('AI 서버 지연! 다시 시도해 주세요.'); }
-            finally { btn.innerText = "✨ AI 단어 100개 설명까지 생성"; btn.disabled = false; }
+                const list = JSON.parse(out.replace(/```json|```/g, "").trim());
+
+                if (Array.isArray(list)) {
+                    // 번역은 개별 학습 시 AI가 처리하므로, 일단 단어만 빠르게 추가
+                    const newEntries = list.map(en => ({ en, ko: '정답 보기 클릭', day: level.split(" ")[0].toUpperCase() }));
+                    words = [...newEntries, ...words];
+                    localStorage.setItem('voca_list', JSON.stringify(words));
+                    drawList(); alert('50개 추가 완료! 학습을 시작하세요.');
+                    refresh();
+                }
+            } catch (e) {
+                alert('AI 서버 지연! 한 번 더 시도해 주세요.');
+            } finally {
+                btn.innerText = "✨ AI 단어 50개 즉시 추가";
+                btn.disabled = false;
+            }
         }
 
         function drawList() {
             const b = document.getElementById('list-box');
             if (!b) return;
-            b.innerHTML = words.slice(0, 50).map(w => `<div style="padding:10px; border-bottom:1px solid rgba(255,255,255,0.05); font-size:0.85rem;"><b>${w.en}</b> : ${w.ko}</div>`).join('');
+            b.innerHTML = words.slice(0, 50).map(w => `<div style="padding:10px; border-bottom:1px solid rgba(255,255,255,0.05); font-size:0.85rem;"><b>${w.en}</b></div>`).join('');
         }
 
         function exportToFile() {
-            let txt = words.map(w => `${w.en} : ${w.ko}\n[AI설명] ${w.ex || ''}\n`).join('\n');
+            let txt = words.map(w => `${w.en} : ${w.ko}\n`).join('\n');
             const blob = new Blob([txt], { type: 'text/plain' });
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
-            a.download = 'voca_list.txt';
+            a.download = 'voca_backup.txt';
             a.click();
-        }
-
-        function clearAll() {
-            if (confirm('단어장을 리셋하고 기본 단어로 돌아갈까요?')) {
-                localStorage.removeItem('voca_list');
-                location.reload();
-            }
         }
 
         window.onload = refresh;
