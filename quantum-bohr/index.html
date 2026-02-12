@@ -4,8 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Word Master | AI 족집게 설명 모드</title>
-    <script src="vocabulary.js"></script>
+    <title>AI Word Master | 긴급 수리 완료</title>
+    <!-- 데이터 파일이 없어도 오류 안 나게 처리 -->
+    <script src="vocabulary.js" onerror="console.log('Using fallback data')"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
@@ -60,15 +61,16 @@
 
         .tab {
             flex: 1;
-            padding: 10px;
+            padding: 12px;
             text-align: center;
             border-radius: 20px;
             cursor: pointer;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--glass-border);
             transition: 0.3s;
             opacity: 0.6;
+            font-weight: 700;
         }
 
         .tab.active {
@@ -76,6 +78,7 @@
             opacity: 1;
             color: white;
             border-color: var(--primary);
+            box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3);
         }
 
         .card-container {
@@ -112,7 +115,7 @@
             justify-content: center;
             padding: 1.5rem;
             background: rgba(255, 255, 255, 0.02);
-            backdrop-filter: blur(15px);
+            backdrop-filter: blur(20px);
         }
 
         .card-back {
@@ -121,11 +124,11 @@
         }
 
         .word-text {
-            font-size: clamp(2.2rem, 9vw, 2.8rem);
+            font-size: clamp(2rem, 8vw, 2.6rem);
             font-weight: 800;
             margin-bottom: 1.5rem;
             color: #fff;
-            text-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
+            text-shadow: 0 0 10px rgba(99, 102, 241, 0.4);
         }
 
         .meaning-text {
@@ -135,7 +138,6 @@
             text-align: center;
         }
 
-        /* 📝 설명 박스 UI (사진 대신 등장) */
         .explanation-box {
             width: 100%;
             min-height: 180px;
@@ -152,7 +154,7 @@
         .ex-text {
             font-size: 0.95rem;
             line-height: 1.6;
-            color: #ced4da;
+            color: #e9ecef;
             text-align: center;
             font-style: italic;
         }
@@ -164,31 +166,9 @@
             background: var(--accent);
             color: #000;
             font-size: 0.65rem;
-            padding: 3px 8px;
+            padding: 3px 10px;
             border-radius: 8px;
             font-weight: 800;
-        }
-
-        .loader-wrap {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .spinner {
-            width: 30px;
-            height: 30px;
-            border: 3px solid rgba(255, 255, 255, 0.1);
-            border-top-color: var(--accent);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
         }
 
         .btn-main {
@@ -202,6 +182,7 @@
             cursor: pointer;
             transition: 0.3s;
             font-size: 1.1rem;
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.2);
         }
 
         .btn-main:active {
@@ -223,6 +204,28 @@
             margin-bottom: 10px;
             font-size: 1rem;
         }
+
+        .loading-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .spinner {
+            width: 30px;
+            height: 30px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
     </style>
 </head>
 
@@ -238,7 +241,6 @@
             <div id="tab-manage" class="tab" onclick="nav('manage')">관리</div>
         </div>
 
-        <!-- LEARN VIEW -->
         <div id="learn-view">
             <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; padding: 0 5px;">
                 <span id="day-info" style="color: var(--accent); font-weight: 800; font-size: 0.8rem;">Ready</span>
@@ -248,16 +250,17 @@
             <div class="card-container" id="card" onclick="document.getElementById('card').classList.toggle('flipped')">
                 <div class="card-inner">
                     <div class="card-front">
-                        <div id="w-en" class="word-text">...</div>
+                        <div id="w-en" class="word-text">Loading...</div>
                         <div class="explanation-box">
                             <span class="ex-tag">AI 족집게 설명</span>
-                            <div class="loader-wrap" id="ex-loader">
+                            <div class="loading-wrap" id="ex-loader">
                                 <div class="spinner"></div>
-                                <div style="font-size:0.7rem; color:var(--accent); margin-top:10px;">설명 가져오는 중...</div>
+                                <div style="font-size:0.75rem; color:var(--accent); margin-top:10px;">AI 설명 불러오는 중...
+                                </div>
                             </div>
                             <div id="w-ex" class="ex-text" style="display:none"></div>
                         </div>
-                        <p style="margin-top: 1.5rem; opacity: 0.4; font-size: 0.7rem;">터치하면 뜻이 보입니다</p>
+                        <p style="margin-top: 1.5rem; opacity: 0.4; font-size: 0.7rem;">카드를 터치하면 뜻이 보입니다</p>
                     </div>
                     <div class="card-back">
                         <div id="w-ko" class="meaning-text">...</div>
@@ -267,16 +270,15 @@
             </div>
         </div>
 
-        <!-- MANAGE VIEW -->
         <div id="manage-view">
             <div class="card-front" style="position:static; height: auto;">
                 <div
                     style="width: 100%; margin-bottom: 1.5rem; background: rgba(99, 102, 241, 0.1); padding: 1.2rem; border-radius: 20px; border: 1px solid var(--primary);">
                     <p style="font-size: 0.85rem; margin-bottom: 15px; color: var(--accent); font-weight: 800;">🤖 AI 대량
-                        단어 & 설명 생성</p>
+                        생성 & 데이터 파일</p>
                     <select id="sel-level">
                         <option value="어린이">👶 어린이용</option>
-                        <option value="초등학교">🎒 초등학생 필용</option>
+                        <option value="초등학교">🎒 초등학생 필수</option>
                         <option value="중학교">🏫 중학생 내신 필수</option>
                         <option value="고등학교">🎓 고등학생/수능 고난도</option>
                     </select>
@@ -284,6 +286,9 @@
                     <button class="btn-main"
                         style="margin-top:10px; background: rgba(255,255,255,0.05); font-size:0.9rem;"
                         onclick="exportToFile()">💾 텍스트 파일로 저장</button>
+                    <button class="btn-main"
+                        style="margin-top:10px; background: rgba(255,77,77,0.1); color:#ff4d4d; font-size:0.9rem;"
+                        onclick="clearAll()">� 전체 초기화</button>
                 </div>
                 <div id="list-box" style="width: 100%; max-height: 250px; overflow-y: auto;"></div>
             </div>
@@ -291,11 +296,30 @@
     </main>
 
     <script>
-        if (typeof MASTER_WORDS === 'undefined') {
-            var MASTER_WORDS = [{ en: 'phenomenon', ko: '현상', day: 'HIGH' }];
+        // 1. 데이터 초기화 (가장 중요: 비어있을 때 방어)
+        const FALLBACK = [{ en: 'phenomenon', ko: '현상', day: 'HIGH', ex: '관찰 가능한 사건이나 상황을 말합니다. 예: Rare phenomenon (희귀 현상)' }];
+        let words = [];
+
+        function initData() {
+            try {
+                const stored = localStorage.getItem('voca_list');
+                const parsed = stored ? JSON.parse(stored) : null;
+
+                // 로컬 저장소가 비어있으면 MASTER_WORDS(파일) 또는 FALLBACK 사용
+                if (parsed && Array.isArray(parsed) && parsed.length > 0) {
+                    words = parsed;
+                } else if (typeof MASTER_WORDS !== 'undefined' && MASTER_WORDS.length > 0) {
+                    words = MASTER_WORDS;
+                } else {
+                    words = FALLBACK;
+                }
+            } catch (e) {
+                words = FALLBACK;
+            }
+            localStorage.setItem('voca_list', JSON.stringify(words));
         }
 
-        let words = JSON.parse(localStorage.getItem('voca_list')) || MASTER_WORDS;
+        initData();
         let idx = Math.floor(Math.random() * words.length);
 
         function nav(name) {
@@ -307,83 +331,39 @@
         }
 
         async function fetchExplanation(wordEn) {
+            const current = words[idx % words.length];
+            if (!current) return;
+
             const exEl = document.getElementById('w-ex');
             const loader = document.getElementById('ex-loader');
             exEl.style.display = 'none';
             loader.style.display = 'flex';
 
-            // 캐시된 설명이 있는지 확인
-            const currentWord = words[idx % words.length];
-            if (currentWord.ex) {
-                showEx(currentWord.ex);
-                return;
-            }
-
-            try {
-                const prompt = `Explain the English word "${wordEn}" in one simple sentence in Korean for students, and provide one short English example sentence with Korean translation. Format: "설명 내용. 예시: English sentence (해석)." Keep it under 60 characters.`;
-                const response = await fetch(`https://text.pollinations.ai/${encodeURIComponent(prompt)}`);
-                const explanation = await response.text();
-
-                // 단어장에 설명 저장 (캐싱)
-                currentWord.ex = explanation;
-                localStorage.setItem('voca_list', JSON.stringify(words));
-                showEx(explanation);
-            } catch (e) {
-                showEx("AI가 잠시 쉬는 중입니다. 단어의 뜻을 생각해보세요!");
+            if (current.ex) {
+                showEx(current.ex);
+            } else {
+                try {
+                    const prompt = `Explain "${wordEn}" in one Korean sentence and one English example. Simple. Max 60 chars.`;
+                    const res = await fetch(`https://text.pollinations.ai/${encodeURIComponent(prompt)}`);
+                    const text = await res.text();
+                    current.ex = text;
+                    localStorage.setItem('voca_list', JSON.stringify(words));
+                    showEx(text);
+                } catch (e) { showEx("AI가 설명 준비 중입니다!"); }
             }
         }
 
         function showEx(text) {
-            const exEl = document.getElementById('w-ex');
-            const loader = document.getElementById('ex-loader');
-            exEl.innerText = text;
-            exEl.style.display = 'block';
-            loader.style.display = 'none';
-        }
-
-        async function askAIBatch() {
-            const btn = document.getElementById('btn-batch');
-            const level = document.getElementById('sel-level').value;
-            btn.innerText = "⏳ AI가 100개 집필 중...";
-            btn.disabled = true;
-
-            try {
-                // 단어, 뜻, 설명을 한 번에 JSON으로 요청
-                const prompt = `Please generate 100 English words for ${level} level. 
-                Format strictly as JSON array: [{"en":"word", "ko":"뜻", "ex":"간단설명 & 예문"}, ...]`;
-
-                const response = await fetch(`https://text.pollinations.ai/${encodeURIComponent(prompt)}`);
-                const textOutput = await response.text();
-                const jsonStr = textOutput.replace(/```json|```/g, "").trim();
-                const newWords = JSON.parse(jsonStr);
-
-                if (Array.isArray(newWords)) {
-                    words = [...newWords, ...words];
-                    localStorage.setItem('voca_list', JSON.stringify(words));
-                    drawList();
-                    alert(`✅ 완료! ${newWords.length}개의 단어와 AI 설명이 추가되었습니다.`);
-                    refresh();
-                }
-            } catch (e) {
-                alert("AI 서버 연결이 원활하지 않습니다. 잠시 후 시도해 주세요!");
-            } finally {
-                btn.innerText = "✨ AI 단어 100개 설명까지 생성";
-                btn.disabled = false;
-            }
-        }
-
-        function exportToFile() {
-            let content = "AI Word Master Vocabulary List\n" + "=".repeat(30) + "\n\n";
-            words.forEach(w => content += `${w.en} : ${w.ko}\n[AI설명] ${w.ex || '없음'}\n\n`);
-            const blob = new Blob([content], { type: 'text/plain' });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = `my_voca_ai.txt`;
-            a.click();
+            document.getElementById('w-ex').innerText = text;
+            document.getElementById('w-ex').style.display = 'block';
+            document.getElementById('ex-loader').style.display = 'none';
         }
 
         function refresh() {
-            if (!words.length) return;
+            if (!words || words.length === 0) {
+                document.getElementById('w-en').innerText = "데이터 없음";
+                return;
+            }
             const w = words[idx % words.length];
             document.getElementById('w-en').innerText = w.en;
             document.getElementById('w-ko').innerText = w.ko;
@@ -398,16 +378,46 @@
             setTimeout(() => {
                 idx = Math.floor(Math.random() * words.length);
                 refresh();
-            }, 300);
+            }, 250);
+        }
+
+        async function askAIBatch() {
+            const btn = document.getElementById('btn-batch');
+            btn.innerText = "⏳ 생성 중..."; btn.disabled = true;
+            try {
+                const level = document.getElementById('sel-level').value;
+                const prompt = `Generate 100 English words for ${level} level. Format as JSON: [{"en":"word","ko":"뜻","ex":"설명&예문"}, ...]`;
+                const res = await fetch(`https://text.pollinations.ai/${encodeURIComponent(prompt)}`);
+                const out = await res.text();
+                const json = JSON.parse(out.replace(/```json|```/g, "").trim());
+                words = [...json, ...words];
+                localStorage.setItem('voca_list', JSON.stringify(words));
+                drawList(); alert('100개 추가 완료!');
+                refresh();
+            } catch (e) { alert('AI 서버 지연! 다시 시도해 주세요.'); }
+            finally { btn.innerText = "✨ AI 단어 100개 설명까지 생성"; btn.disabled = false; }
         }
 
         function drawList() {
             const b = document.getElementById('list-box');
-            b.innerHTML = words.slice(0, 50).map((w, i) => `
-                <div style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.85rem;">
-                    <b>${w.en}</b> : ${w.ko}
-                </div>
-            `).join('');
+            if (!b) return;
+            b.innerHTML = words.slice(0, 50).map(w => `<div style="padding:10px; border-bottom:1px solid rgba(255,255,255,0.05); font-size:0.85rem;"><b>${w.en}</b> : ${w.ko}</div>`).join('');
+        }
+
+        function exportToFile() {
+            let txt = words.map(w => `${w.en} : ${w.ko}\n[AI설명] ${w.ex || ''}\n`).join('\n');
+            const blob = new Blob([txt], { type: 'text/plain' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'voca_list.txt';
+            a.click();
+        }
+
+        function clearAll() {
+            if (confirm('단어장을 리셋하고 기본 단어로 돌아갈까요?')) {
+                localStorage.removeItem('voca_list');
+                location.reload();
+            }
         }
 
         window.onload = refresh;
