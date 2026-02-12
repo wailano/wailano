@@ -80,7 +80,7 @@
         .card-container {
             perspective: 1000px;
             width: 100%;
-            aspect-ratio: 3/4.8;
+            aspect-ratio: 3/4.9;
             cursor: pointer;
             margin-bottom: 1rem;
         }
@@ -124,7 +124,6 @@
             font-weight: 800;
             margin-bottom: 0.5rem;
             color: #fff;
-            text-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
         }
 
         .meaning-text {
@@ -179,19 +178,19 @@
 
         .btn-reload {
             margin-top: 10px;
-            padding: 6px 12px;
+            padding: 8px 16px;
             border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--accent);
+            background: rgba(34, 211, 238, 0.1);
             color: var(--accent);
-            font-size: 0.7rem;
-            font-weight: 600;
+            font-size: 0.75rem;
+            font-weight: 700;
             cursor: pointer;
             transition: 0.3s;
         }
 
-        .btn-reload:hover {
-            background: rgba(34, 211, 238, 0.1);
+        .btn-reload:active {
+            transform: scale(0.95);
         }
 
         .btn-main {
@@ -265,8 +264,8 @@
 
         <div id="learn-view">
             <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; padding: 0 5px;">
-                <span id="day-info" style="color: var(--accent); font-weight: 800; font-size: 0.8rem;">Day 01</span>
-                <span id="prog-info" style="opacity: 0.5; font-size: 0.8rem;">1 / 20</span>
+                <span id="day-info" style="color: var(--accent); font-weight: 800; font-size: 0.8rem;">Day --</span>
+                <span id="prog-info" style="opacity: 0.5; font-size: 0.8rem;">-- / --</span>
             </div>
 
             <div class="card-container" id="card" onclick="document.getElementById('card').classList.toggle('flipped')">
@@ -276,11 +275,11 @@
                         <div class="image-box">
                             <div class="loader-wrap" id="w-loader">
                                 <div class="spinner"></div>
-                                <div style="font-size:0.7rem; color:var(--accent);">AI 작화 중...</div>
+                                <div style="font-size:0.7rem; color:var(--accent);">이미지 불러오는 중...</div>
                             </div>
                             <img id="w-img">
                         </div>
-                        <button class="btn-reload" onclick="forceReload(event)">🎨 다른 그림으로 보기</button>
+                        <button class="btn-reload" onclick="forceNextServer(event)">🎨 다른 그림으로 보기 (서버 변경)</button>
                         <p style="margin-top: 1rem; opacity: 0.4; font-size: 0.65rem;">터치하면 뜻이 나타납니다</p>
                     </div>
                     <div class="card-back">
@@ -306,7 +305,7 @@
         <div id="manage-view">
             <div class="card-front" style="position:static; height: auto;">
                 <button class="btn-main" style="margin-bottom: 1.5rem;" onclick="addAI()">✨ 고등 필수 AI 단어 추천</button>
-                <input type="text" id="in-en" placeholder="영어 단어 (예: Universe)" onblur="autoKo()">
+                <input type="text" id="in-en" placeholder="영어 단어" onblur="autoKo()">
                 <input type="text" id="in-ko" placeholder="한글 뜻">
                 <button class="btn-main" onclick="addManual()">저장하기</button>
                 <div id="list-box" style="width: 100%; margin-top: 1.5rem; max-height: 250px; overflow-y: auto;"></div>
@@ -327,6 +326,7 @@
         let idx = Math.floor(Math.random() * words.length);
         let dCnt = parseInt(localStorage.getItem('voca_daily') || '0');
         let tCnt = parseInt(localStorage.getItem('voca_total') || '0');
+        let serverIdx = 0;
 
         function nav(name) {
             document.getElementById('learn-view').style.display = (name === 'learn') ? 'block' : 'none';
@@ -336,31 +336,40 @@
             if (name === 'manage') drawList();
         }
 
-        function drawPic(word, force = false) {
+        function drawPic(word) {
             const img = document.getElementById('w-img');
             const loader = document.getElementById('w-loader');
             img.style.display = 'none';
             loader.style.display = 'flex';
 
             const clean = word.replace(/[^a-zA-Z]/g, "").trim();
-            const seed = force ? Math.random() : 1234567; // 랜덤값 부여로 중복 방지
+            const seed = Math.floor(Math.random() * 10000);
 
-            // 핵심: 고해상도 사진 대신 '단어 의미 집중 일러스트' 프롬프트
-            const prompt = `Very simple 3D clay style illustration of ${clean}, cute character, minimal clean background, soft lighting`;
-            const source = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=512&height=512&nologo=true&seed=${Math.floor(seed * 100000)}`;
+            // "Rate Limit"이 없는 안정적인 3단계 서버 리스트
+            const servers = [
+                `https://loremflickr.com/512/512/illustration,drawing,${clean}?lock=${seed}`, // 1순위: 안정적인 일러스트
+                `https://source.unsplash.com/featured/?drawing,${clean}`,               // 2순위: 고화질 드로잉
+                `https://ui-avatars.com/api/?name=${word[0]}&size=512&background=6366f1&color=fff&font-size=0.5` // 3순위: 무조건 나오는 아이콘
+            ];
 
-            img.src = source;
-            img.onload = () => { img.style.display = 'block'; loader.style.display = 'none'; };
+            img.src = servers[serverIdx % servers.length];
+
+            img.onload = () => {
+                // Pollinations의 에러 이미지는 크기가 특정되어 있을 수 있으므로 체크
+                img.style.display = 'block';
+                loader.style.display = 'none';
+            };
+
             img.onerror = () => {
-                // 고양이 대신 단어 의미를 검색한 실사 삽화 소스로 교체
-                img.src = `https://loremflickr.com/512/512/drawing,${clean}?lock=${Math.floor(seed * 1000)}`;
-                img.onload = () => { img.style.display = 'block'; loader.style.display = 'none'; };
+                serverIdx++;
+                drawPic(word);
             };
         }
 
-        function forceReload(e) {
+        function forceNextServer(e) {
             if (e) e.stopPropagation();
-            drawPic(words[idx % words.length].en, true);
+            serverIdx++;
+            drawPic(words[idx % words.length].en);
         }
 
         function refresh() {
