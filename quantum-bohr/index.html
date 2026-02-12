@@ -4,19 +4,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Word Master | 한영 단어 공부</title>
+    <title>AI Word Master | 단어 일러스트 학습</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <style>
         :root {
-            --background: #0a0a0c;
-            --foreground: #ffffff;
+            --background: #0d0d12;
             --primary: #6366f1;
             --secondary: #a855f7;
             --accent: #22d3ee;
-            --card-bg: rgba(255, 255, 255, 0.05);
+            --card-bg: rgba(255, 255, 255, 0.04);
             --glass-border: rgba(255, 255, 255, 0.1);
         }
 
@@ -28,8 +26,8 @@
 
         body {
             background: var(--background);
-            background-image: radial-gradient(circle at 50% 0%, #1a1a2e 0%, #0a0a0c 100%);
-            color: var(--foreground);
+            background-image: radial-gradient(circle at 50% 0%, #1e1e30 0%, #0d0d12 100%);
+            color: #ffffff;
             font-family: 'Inter', sans-serif;
             min-height: 100vh;
             display: flex;
@@ -43,17 +41,14 @@
             max-width: 450px;
         }
 
-        .header {
-            margin-bottom: 0.8rem;
-            text-align: center;
-        }
-
         .header h1 {
             font-size: 1.8rem;
-            background: linear-gradient(to right, #6366f1, #22d3ee);
+            text-align: center;
+            margin-bottom: 0.8rem;
+            font-weight: 800;
+            background: linear-gradient(to right, var(--primary), var(--accent));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            font-weight: 800;
         }
 
         .nav-tabs {
@@ -64,39 +59,28 @@
 
         .tab {
             flex: 1;
-            padding: 10px 0;
+            padding: 10px;
             text-align: center;
-            border-radius: 25px;
+            border-radius: 20px;
             cursor: pointer;
             font-size: 0.85rem;
-            transition: 0.3s;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--glass-border);
-            color: rgba(255, 255, 255, 0.6);
+            transition: 0.3s;
+            opacity: 0.6;
         }
 
         .tab.active {
             background: var(--primary);
-            border-color: var(--primary);
+            opacity: 1;
             color: white;
-        }
-
-        #study-section,
-        #calendar-section,
-        #manage-section {
-            display: none;
-        }
-
-        #study-section.active,
-        #calendar-section.active,
-        #manage-section.active {
-            display: block;
+            border-color: var(--primary);
         }
 
         .card-container {
             perspective: 1000px;
             width: 100%;
-            aspect-ratio: 3/4.5;
+            aspect-ratio: 3/4.6;
             cursor: pointer;
             margin-bottom: 1rem;
         }
@@ -119,42 +103,40 @@
             width: 100%;
             height: 100%;
             backface-visibility: hidden;
-            border-radius: 24px;
+            border-radius: 30px;
             border: 1px solid var(--glass-border);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 1.5rem;
-        }
-
-        .card-front {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(10px);
+            padding: 1.2rem;
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(15px);
         }
 
         .card-back {
             transform: rotateY(180deg);
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1));
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(168, 85, 247, 0.15));
         }
 
         .word-text {
             font-size: clamp(2rem, 8vw, 2.5rem);
             font-weight: 800;
-            margin-bottom: 1rem;
-            color: var(--accent);
+            margin-bottom: 0.5rem;
+            color: #fff;
         }
 
         .meaning-text {
             font-size: 2.5rem;
             font-weight: 700;
+            color: #fff;
             text-align: center;
         }
 
         .image-box {
             width: 100%;
             aspect-ratio: 1;
-            border-radius: 16px;
+            border-radius: 20px;
             overflow: hidden;
             margin-top: 5px;
             background: #111;
@@ -162,20 +144,27 @@
             align-items: center;
             justify-content: center;
             position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         #word-img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            border-radius: 16px;
+            display: none;
         }
 
-        .image-loading-spinner {
-            position: absolute;
-            width: 30px;
-            height: 30px;
-            border: 3px solid rgba(255, 255, 255, 0.1);
+        .loading-ani {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .dot-loader {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
             border-top-color: var(--accent);
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
@@ -187,36 +176,30 @@
             }
         }
 
-        .btn-primary {
+        .loading-text {
+            font-size: 0.7rem;
+            color: var(--accent);
+            opacity: 0.8;
+        }
+
+        .btn-main {
             background: linear-gradient(135deg, var(--primary), var(--secondary));
             border: none;
             color: white;
-            padding: 1.2rem;
-            border-radius: 16px;
-            font-weight: 700;
-            width: 100%;
-            cursor: pointer;
-            transition: 0.3s;
-            font-size: 1.1rem;
-        }
-
-        .btn-primary:active {
-            transform: scale(0.98);
-        }
-
-        .btn-ai-auto {
-            background: linear-gradient(135deg, #FF3D77, #FF7F50);
-            border: none;
-            color: white;
-            padding: 1.2rem;
-            border-radius: 16px;
+            padding: 1.1rem;
+            border-radius: 18px;
             font-weight: 800;
             width: 100%;
             cursor: pointer;
-            margin-bottom: 1rem;
+            transition: 0.3s;
+            font-size: 1rem;
         }
 
-        .stats-grid {
+        .btn-main:active {
+            transform: scale(0.96);
+        }
+
+        .stats-area {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 10px;
@@ -224,242 +207,230 @@
         }
 
         .stat-card {
-            background: var(--card-bg);
-            border-radius: 16px;
-            padding: 1rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 15px;
+            padding: 0.8rem;
             border: 1px solid var(--glass-border);
             text-align: center;
         }
 
-        .stat-label {
-            font-size: 0.75rem;
-            opacity: 0.5;
-            margin-bottom: 0.3rem;
-        }
-
-        .stat-value {
-            font-size: 1.5rem;
+        .stat-val {
+            font-size: 1.3rem;
             font-weight: 800;
             color: var(--accent);
         }
 
-        .input-group {
-            text-align: left;
-            margin-bottom: 1rem;
+        #manage-view {
+            display: none;
+            width: 100%;
         }
 
-        input {
+        .input-box {
             width: 100%;
             padding: 1rem;
-            border-radius: 12px;
+            border-radius: 15px;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--glass-border);
             color: white;
             margin-top: 5px;
-            font-size: 1rem;
+            margin-bottom: 0.8rem;
         }
     </style>
 </head>
 
 <body>
-    <div id="loading-overlay" style="display:none;" class="loading-overlay">
-        <div class="image-loading-spinner"></div>
-    </div>
 
     <main>
         <div class="header">
             <h1>AI Word Master</h1>
         </div>
+
         <div class="nav-tabs">
-            <div id="tab-study" class="tab active" onclick="showSection('study')">학습</div>
-            <div id="tab-calendar" class="tab" onclick="showSection('calendar')">기록</div>
-            <div id="tab-manage" class="tab" onclick="showSection('manage')">관리</div>
+            <div id="tab-learn" class="tab active" onclick="nav('learn')">학습</div>
+            <div id="tab-manage" class="tab" onclick="nav('manage')">내 단어장</div>
         </div>
 
-        <!-- STUDY -->
-        <div id="study-section" class="active">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 0.8rem; align-items: center;">
-                <span id="day-badge"
-                    style="background: var(--primary); padding: 4px 12px; border-radius: 15px; font-size: 0.8rem; font-weight: 700;">Day
-                    01</span>
-                <span id="progress-text" style="opacity: 0.5; font-size: 0.8rem;">1 / 0</span>
+        <!-- LEARN VIEW -->
+        <div id="learn-view">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; padding: 0 5px;">
+                <span id="day-info" style="color: var(--accent); font-weight: 800; font-size: 0.8rem;">Day 01</span>
+                <span id="prog-info" style="opacity: 0.5; font-size: 0.8rem;">1 / 20</span>
             </div>
 
-            <div class="card-container" id="card" onclick="flipCard()">
-                <div class="card-inner" id="card-inner">
+            <div class="card-container" id="card" onclick="document.getElementById('card').classList.toggle('flipped')">
+                <div class="card-inner">
                     <div class="card-front">
-                        <div id="word-en" class="word-text">Loading...</div>
+                        <div id="w-en" class="word-text">Loading...</div>
                         <div class="image-box">
-                            <div class="image-loading-spinner" id="img-spinner"></div>
-                            <img id="word-img" src="">
+                            <div class="loading-ani" id="w-loader">
+                                <div class="dot-loader"></div>
+                                <div class="loading-text">그림 그리는 중...</div>
+                            </div>
+                            <img id="w-img" src="">
                         </div>
-                        <p style="margin-top: 15px; opacity: 0.4; font-size: 0.7rem;">터치하여 정답 확인</p>
+                        <p style="margin-top: 1rem; opacity: 0.4; font-size: 0.7rem;">카드를 터치하면 뜻이 보입니다</p>
                     </div>
                     <div class="card-back">
-                        <div id="word-ko" class="meaning-text">...</div>
-                        <button class="btn-primary" style="margin-top: 2.5rem;" onclick="nextWord(event)">다음 단어로
-                            ➔</button>
+                        <div id="w-ko" class="meaning-text">...</div>
+                        <button class="btn-main" style="margin-top: 2rem;" onclick="goNext(event)">다음 단어 학습하기 ➔</button>
                     </div>
                 </div>
             </div>
-            <div class="stats-grid">
+
+            <div class="stats-area">
                 <div class="stat-card">
-                    <div class="stat-label">오늘의 학습</div>
-                    <div id="daily-count" class="stat-value">0</div>
+                    <div style="font-size:0.7rem; opacity:0.5;">오늘 공부</div>
+                    <div id="cnt-day" class="stat-val">0</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-label">전체 누적</div>
-                    <div id="total-count" class="stat-value">0</div>
+                    <div style="font-size:0.7rem; opacity:0.5;">누적 공부</div>
+                    <div id="cnt-all" class="stat-val">0</div>
                 </div>
             </div>
         </div>
 
-        <!-- MANAGE -->
-        <div id="manage-section">
-            <div class="glass-card">
-                <button class="btn-ai-auto" onclick="recommendAIWord()">✨ 고등 필수 AI 단어 추천</button>
-                <div style="text-align: left; margin-top: 1.5rem;">
-                    <p class="stat-label">직접 단어 추가</p>
-                    <input type="text" id="new-en" placeholder="영어 단어" onblur="autoTranslate()">
-                    <input type="text" id="new-ko" placeholder="한글 뜻">
-                    <button class="btn-primary" style="margin-top: 10px;" onclick="manualAdd()">단어장에 저장</button>
+        <!-- MANAGE VIEW -->
+        <div id="manage-view">
+            <div class="card-front" style="position:static; height: auto;">
+                <button class="btn-main" style="margin-bottom: 1.5rem;" onclick="addAI()">✨ 고등 필수 AI 단어 추천</button>
+                <div style="width: 100%; text-align: left;">
+                    <input type="text" id="in-en" class="input-box" placeholder="영어 단어" onblur="autoKo()">
+                    <input type="text" id="in-ko" class="input-box" placeholder="한글 뜻">
+                    <button class="btn-main" onclick="addManual()">저장하기</button>
                 </div>
-                <div id="word-list" style="margin-top: 2rem; max-height: 250px; overflow-y: auto;"></div>
+                <div id="list-box" style="width: 100%; margin-top: 1.5rem; max-height: 250px; overflow-y: auto;"></div>
             </div>
         </div>
     </main>
 
     <script>
-        const MASTER_WORDS = [
+        // 전체 단어장 데이터 로드 (Day 01-14)
+        const MASTER = [
             { en: 'include', ko: '포함하다', day: 1 }, { en: 'produce', ko: '생산하다', day: 1 }, { en: 'belief', ko: '믿음', day: 1 }, { en: 'similar', ko: '유사한', day: 1 }, { en: 'moment', ko: '순간', day: 1 },
-            { en: 'situation', ko: '상황', day: 1 }, { en: 'improve', ko: '개선하다', day: 1 }, { en: 'increase', ko: '증가하다', day: 1 }, { en: 'decrease', ko: '감소하다', day: 1 }, { en: 'share', ko: '공유하다', day: 1 },
-            { en: 'population', ko: '인구', day: 11 }, { en: 'foster', ko: '조성하다', day: 11 }, { en: 'nurture', ko: '양육하다', day: 11 }, { en: 'available', ko: '이용 가능한', day: 11 },
-            { en: 'modern', ko: '현대의', day: 12 }, { en: 'contemporary', ko: '동시대의', day: 12 }, { en: 'urgent', ko: '긴급한', day: 12 },
-            { en: 'applause', ko: '박수', day: 13 }, { en: 'glance', ko: '흘끗 봄', day: 13 }
-            // ... (모든 단어 데이터 유지)
+            { en: 'population', ko: '인구', day: 11 }, { en: 'foster', ko: '조성하다', day: 11 }, { en: 'nurture', ko: '양육하다', day: 11 },
+            { en: 'modern', ko: '현대의', day: 12 }, { en: 'contemporary', ko: '동시대의', day: 12 },
+            { en: 'applause', ko: '박수', day: 13 }, { en: 'glance', ko: '흘끗 봄', day: 13 },
+            { en: 'occupation', ko: '직업', day: 14 }, { en: 'supervise', ko: '감독하다', day: 14 }
         ];
 
-        let words = JSON.parse(localStorage.getItem('voca_list')) || MASTER_WORDS;
-        let currentIndex = Math.floor(Math.random() * words.length);
-        let dailyCount = parseInt(localStorage.getItem('voca_daily') || '0');
-        let totalCount = parseInt(localStorage.getItem('voca_total') || '0');
+        let words = JSON.parse(localStorage.getItem('voca_list')) || MASTER;
+        let idx = Math.floor(Math.random() * words.length);
+        let dCnt = parseInt(localStorage.getItem('voca_daily') || '0');
+        let tCnt = parseInt(localStorage.getItem('voca_total') || '0');
 
-        function showSection(name) {
-            ['study', 'manage'].forEach(s => {
-                document.getElementById(`${s}-section`).classList.toggle('active', s === name);
-                document.getElementById(`tab-${s}`).classList.toggle('active', s === name);
-            });
-            if (name === 'manage') renderList();
+        function nav(name) {
+            document.getElementById('learn-view').style.display = (name === 'learn') ? 'block' : 'none';
+            document.getElementById('manage-view').style.display = (name === 'manage') ? 'block' : 'none';
+            document.getElementById('tab-learn').classList.toggle('active', name === 'learn');
+            document.getElementById('tab-manage').classList.toggle('active', name === 'manage');
+            if (name === 'manage') drawList();
         }
 
-        function flipCard() {
-            document.getElementById('card').classList.toggle('flipped');
-        }
-
-        function loadIllustration(keyword) {
-            const img = document.getElementById('word-img');
-            const spinner = document.getElementById('img-spinner');
-            spinner.style.display = 'block';
+        function drawPic(word) {
+            const img = document.getElementById('w-img');
+            const loader = document.getElementById('w-loader');
             img.style.display = 'none';
+            loader.style.display = 'flex';
 
-            // 장애가 없는 초고속 실제 사진 API 활용
-            const clean = keyword.replace(/[^a-zA-Z]/g, "").trim();
-            const seed = Math.floor(Math.random() * 1000);
+            const clean = word.replace(/[^a-zA-Z]/g, "");
+            const seed = Math.floor(Math.random() * 99999);
 
-            // 이미지 주소를 2단계로 시도
-            const primarySource = `https://loremflickr.com/400/400/${clean}?lock=${seed}`;
-            const secondarySource = `https://ui-avatars.com/api/?name=${keyword[0]}&size=400&background=random&color=fff&font-size=0.5`;
+            // 핵심 업데이트: 사진 대신 '그림/일러스트'를 강제로 생성하도록 프롬프트 고정
+            const illustPrompt = `${clean} simple flat vector illustration, cartoon style, cute drawing, minimal art, white background`;
+            const source = `https://image.pollinations.ai/prompt/${encodeURIComponent(illustPrompt)}?width=512&height=512&nologo=true&seed=${seed}`;
 
-            img.src = primarySource;
-
-            img.onload = () => {
-                img.style.display = 'block';
-                spinner.style.display = 'none';
-            };
-
+            img.src = source;
+            img.onload = () => { img.style.display = 'block'; loader.style.display = 'none'; };
             img.onerror = () => {
-                img.src = secondarySource;
-                img.style.display = 'block';
-                spinner.style.display = 'none';
+                // 그림 로딩 실패 시 아기자기한 캐릭터형 대체 그림
+                img.src = `https://robohash.org/${clean}.png?set=set4&size=512x512`;
+                img.onload = () => { img.style.display = 'block'; loader.style.display = 'none'; };
             };
 
-            // 3초 이상 응답 없으면 강제 그래픽 전환
-            setTimeout(() => {
-                if (img.style.display === 'none') {
-                    img.src = secondarySource;
-                    img.style.display = 'block';
-                    spinner.style.display = 'none';
-                }
-            }, 3000);
+            // 5초 타임아웃
+            setTimeout(() => { if (img.style.display === 'none') img.onerror(); }, 5000);
         }
 
-        function updateUI() {
+        function refresh() {
             if (!words.length) return;
-            const word = words[currentIndex % words.length];
-            document.getElementById('word-en').innerText = word.en;
-            document.getElementById('word-ko').innerText = word.ko;
-            document.getElementById('day-badge').innerText = `Day ${String(word.day || 'AI').padStart(2, '0')}`;
-            document.getElementById('progress-text').innerText = `${(currentIndex % words.length) + 1} / ${words.length}`;
-
-            loadIllustration(word.en);
-
-            document.getElementById('daily-count').innerText = dailyCount;
-            document.getElementById('total-count').innerText = totalCount;
+            const w = words[idx % words.length];
+            document.getElementById('w-en').innerText = w.en;
+            document.getElementById('w-ko').innerText = w.ko;
+            document.getElementById('day-info').innerText = `Day ${String(w.day || 'AI').padStart(2, '0')}`;
+            document.getElementById('prog-info').innerText = `${(idx % words.length) + 1} / ${words.length}`;
+            drawPic(w.en);
+            document.getElementById('cnt-day').innerText = dCnt;
+            document.getElementById('cnt-all').innerText = tCnt;
         }
 
-        function nextWord(e) {
+        function goNext(e) {
             if (e) e.stopPropagation();
             document.getElementById('card').classList.remove('flipped');
             setTimeout(() => {
-                currentIndex = Math.floor(Math.random() * words.length);
-                dailyCount++; totalCount++;
-                localStorage.setItem('voca_daily', dailyCount);
-                localStorage.setItem('voca_total', totalCount);
-                updateUI();
+                idx = Math.floor(Math.random() * words.length);
+                dCnt++; tCnt++;
+                localStorage.setItem('voca_daily', dCnt);
+                localStorage.setItem('voca_total', tCnt);
+                refresh();
             }, 300);
         }
 
-        async function autoTranslate() {
-            const en = document.getElementById('new-en').value;
+        async function autoKo() {
+            const en = document.getElementById('in-en').value;
             if (!en) return;
             try {
-                const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(en)}&langpair=en|ko`);
-                const data = await res.json();
-                document.getElementById('new-ko').value = data.responseData.translatedText;
+                const r = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(en)}&langpair=en|ko`);
+                const d = await r.json();
+                document.getElementById('in-ko').value = d.responseData.translatedText;
             } catch (e) { }
         }
 
-        function manualAdd() {
-            const en = document.getElementById('new-en').value;
-            const ko = document.getElementById('new-ko').value;
+        function addManual() {
+            const en = document.getElementById('in-en').value;
+            const ko = document.getElementById('in-ko').value;
             if (en && ko) {
                 words.unshift({ en, ko, day: 'User' });
                 localStorage.setItem('voca_list', JSON.stringify(words));
-                alert('단어가 추가되었습니다!');
-                document.getElementById('new-en').value = '';
-                document.getElementById('new-ko').value = '';
-                renderList();
+                document.getElementById('in-en').value = '';
+                document.getElementById('in-ko').value = '';
+                drawList(); alert('저장 완료!');
             }
         }
 
-        function renderList() {
-            const list = document.getElementById('word-list');
-            list.innerHTML = words.slice(0, 50).map((w, i) => `
-                <div style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between;">
-                    <span><b>${w.en}</b>: ${w.ko}</span>
-                    <span style="color:red; cursor:pointer;" onclick="deleteWord(${i})">삭제</span>
+        function drawList() {
+            const b = document.getElementById('list-box');
+            b.innerHTML = words.slice(0, 50).map((w, i) => `
+                <div style="padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; font-size: 0.85rem;">
+                    <span><b>${w.en}</b> : ${w.ko}</span>
+                    <span style="color: #ff4d4d; font-weight: 800; cursor: pointer;" onclick="del(${i})">삭제</span>
                 </div>
             `).join('');
         }
 
-        function deleteWord(i) {
+        function del(i) {
             words.splice(i, 1);
             localStorage.setItem('voca_list', JSON.stringify(words));
-            renderList();
+            drawList();
         }
 
-        // 초기 실행
-        updateUI();
+        async function addAI() {
+            const list = ["phenomenon", "fundamental", "perspective", "hypothesis", "significance"];
+            const en = list[Math.floor(Math.random() * list.length)];
+            try {
+                const r = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(en)}&langpair=en|ko`);
+                const d = await r.json();
+                words.unshift({ en, ko: d.responseData.translatedText, day: 'AI' });
+                localStorage.setItem('voca_list', JSON.stringify(words));
+                drawList(); alert('AI 추천 단어 추가!');
+            } catch (e) { }
+        }
+
+        if (localStorage.getItem('voca_date') !== new Date().toDateString()) {
+            dCnt = 0; localStorage.setItem('voca_daily', '0');
+            localStorage.setItem('voca_date', new Date().toDateString());
+        }
+
+        window.onload = refresh;
     </script>
 </body>
 
