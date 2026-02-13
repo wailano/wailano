@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Word Master | Powered by 날아라메뚜기</title>
+    <title>AI Word Master | Compact Edition</title>
     <script src="vocabulary.js" onerror="window.MASTER_WORDS=[]"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -36,22 +36,22 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 1rem;
+            padding: 0.8rem;
         }
 
         main {
             width: 100%;
-            max-width: 450px;
+            max-width: 420px;
             position: relative;
-            min-height: calc(100vh - 2rem);
+            min-height: calc(100vh - 1.6rem);
             display: flex;
             flex-direction: column;
         }
 
         .header h1 {
-            font-size: 1.8rem;
+            font-size: 1.6rem;
             text-align: center;
-            margin-bottom: 0.8rem;
+            margin-bottom: 0.6rem;
             font-weight: 800;
             background: var(--gemini-grad);
             -webkit-background-clip: text;
@@ -61,22 +61,22 @@
 
         .nav-tabs {
             display: flex;
-            gap: 8px;
-            margin-bottom: 1.2rem;
+            gap: 6px;
+            margin-bottom: 1rem;
         }
 
         .tab {
             flex: 1;
-            padding: 12px;
+            padding: 10px;
             text-align: center;
-            border-radius: 20px;
+            border-radius: 18px;
             cursor: pointer;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.08);
             opacity: 0.4;
             font-weight: 700;
-            transition: 0.3s;
+            transition: 0.2s;
         }
 
         .tab.active {
@@ -84,22 +84,21 @@
             opacity: 1;
             color: white;
             border-color: rgba(66, 133, 244, 0.5);
-            box-shadow: 0 0 20px rgba(66, 133, 244, 0.2);
         }
 
         .card-container {
             perspective: 2000px;
             width: 100%;
-            aspect-ratio: 3/5.8;
+            aspect-ratio: 3/5.3;
             cursor: pointer;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
         }
 
         .card-inner {
             position: relative;
             width: 100%;
             height: 100%;
-            transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
             transform-style: preserve-3d;
         }
 
@@ -113,60 +112,65 @@
             width: 100%;
             height: 100%;
             backface-visibility: hidden;
-            border-radius: 40px;
+            border-radius: 35px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 1.8rem 1.6rem;
-            background: rgba(20, 20, 25, 0.8);
+            padding: 1.5rem 1.4rem;
+            background: rgba(20, 20, 25, 0.85);
             backdrop-filter: blur(20px);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
         }
 
         .card-back {
             transform: rotateY(180deg);
-            background: linear-gradient(135deg, rgba(66, 133, 244, 0.1), rgba(192, 132, 252, 0.05));
+            background: linear-gradient(135deg, rgba(66, 133, 244, 0.12), rgba(192, 132, 252, 0.08));
             justify-content: center;
         }
 
         .word-text {
-            font-size: clamp(2.2rem, 10vw, 3.5rem);
+            font-size: clamp(2rem, 9vw, 3.2rem);
             font-weight: 800;
-            margin-bottom: 1.2rem;
+            margin-bottom: 1rem;
             text-align: center;
             color: #fff;
-            letter-spacing: -2px;
+            letter-spacing: -1.5px;
         }
 
         .meaning-text {
-            font-size: 3rem;
+            font-size: 2.8rem;
             font-weight: 800;
             text-align: center;
             color: #fff;
-            text-shadow: 0 0 30px rgba(255, 255, 255, 0.2);
+            text-shadow: 0 0 25px rgba(255, 255, 255, 0.2);
         }
 
-        .visual-box {
+        /* � 박스 높이 압축 (180px) */
+        .visual-box,
+        .explanation-box {
             width: 100%;
-            height: 210px;
-            border-radius: 28px;
-            margin-bottom: 1.2rem;
+            height: 180px;
+            border-radius: 25px;
+            margin-bottom: 1rem;
             background: #000;
             border: 1px solid rgba(255, 255, 255, 0.1);
-            overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .visual-box {
+            overflow: hidden;
         }
 
         .visual-box img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: 0.6s ease;
+            transition: 0.5s ease;
             filter: blur(25px);
             opacity: 0.3;
         }
@@ -179,86 +183,57 @@
         .reveal-overlay {
             position: absolute;
             inset: 0;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.65);
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             z-index: 5;
-            transition: 0.3s;
+            transition: 0.2s;
+            border-radius: 25px;
         }
 
         .reveal-overlay span {
-            background: rgba(255, 255, 255, 0.15);
-            padding: 8px 20px;
+            background: rgba(255, 255, 255, 0.12);
+            padding: 8px 18px;
             border-radius: 20px;
             font-size: 0.8rem;
             font-weight: 700;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             color: #fff;
             backdrop-filter: blur(5px);
         }
 
-        .reveal-overlay:hover span {
-            background: rgba(66, 133, 244, 0.4);
-            transform: scale(1.05);
-        }
-
-        .img-loader {
-            position: absolute;
-            font-size: 0.7rem;
-            color: #4285f4;
-            font-weight: 700;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-            z-index: 2;
-        }
-
         .explanation-box {
-            width: 100%;
-            flex-grow: 1;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.06);
             padding: 1.2rem;
-            border-radius: 25px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            text-align: center;
-            min-height: 100px;
-            overflow: hidden;
         }
 
         .ex-text {
-            font-size: 1.15rem;
+            font-size: 1.1rem;
             line-height: 1.5;
             color: #e4e4e7;
             font-weight: 600;
             word-break: keep-all;
             filter: blur(15px);
             transition: 0.4s;
-            pointer-events: none;
         }
 
         .ex-text.revealed {
             filter: blur(0);
-            pointer-events: auto;
         }
 
         .ex-tag {
             position: absolute;
             top: -10px;
-            left: 20px;
+            left: 18px;
             background: var(--gemini-grad);
             color: #fff;
-            font-size: 0.65rem;
-            padding: 4px 12px;
+            font-size: 0.6rem;
+            padding: 3px 12px;
             border-radius: 10px;
             font-weight: 800;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
             z-index: 10;
         }
 
@@ -266,45 +241,35 @@
             background: var(--gemini-grad);
             border: none;
             color: white;
-            padding: 1.1rem;
-            border-radius: 24px;
+            padding: 1rem;
+            border-radius: 22px;
             font-weight: 800;
             width: 100%;
             cursor: pointer;
-            font-size: 1.05rem;
-            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 15px 30px -10px rgba(66, 133, 244, 0.5);
-        }
-
-        .btn-main:hover {
-            transform: translateY(-3px);
+            font-size: 1rem;
+            transition: 0.2s;
+            box-shadow: 0 10px 20px -5px rgba(66, 133, 244, 0.4);
         }
 
         .btn-main:active {
-            transform: scale(0.96);
+            transform: scale(0.97);
         }
 
-        /* 🎖️ 제작자 브랜딩 푸터 */
+        /* 🎖️ 푸터 밀착 최적화 */
         .footer {
-            margin-top: auto;
-            padding: 2rem 0;
+            margin-top: 2rem;
+            padding-bottom: 1.5rem;
             text-align: center;
-            font-size: 0.75rem;
-            color: rgba(255, 255, 255, 0.25);
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.2);
             font-weight: 700;
-            letter-spacing: 1.5px;
-            transition: 0.4s;
-            cursor: default;
-        }
-
-        .footer:hover {
-            color: #91b9ff;
-            transform: scale(1.02);
+            letter-spacing: 2px;
+            text-transform: uppercase;
         }
 
         .footer .author {
             color: var(--accent);
-            opacity: 0.8;
+            opacity: 0.7;
         }
 
         #manage-view {
@@ -315,65 +280,67 @@
         .manage-card {
             background: rgba(255, 255, 255, 0.02);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 35px;
-            padding: 2rem;
+            border-radius: 30px;
+            padding: 1.8rem;
         }
 
         .api-input-wrap {
             background: rgba(66, 133, 244, 0.05);
-            border-radius: 22px;
-            padding: 1.2rem;
-            border: 1px solid rgba(66, 133, 244, 0.2);
-            margin-bottom: 2rem;
+            border-radius: 20px;
+            padding: 1rem;
+            border: 1px solid rgba(66, 133, 244, 0.15);
+            margin-bottom: 1.5rem;
         }
 
         input[type="text"] {
             width: 100%;
-            padding: 0.9rem;
-            border-radius: 15px;
+            padding: 0.8rem;
+            border-radius: 12px;
             background: #000;
-            border: 1px solid rgba(66, 133, 244, 0.3);
+            border: 1px solid rgba(66, 133, 244, 0.2);
             color: #91b9ff;
-            margin-top: 10px;
+            margin-top: 8px;
             font-family: monospace;
             outline: none;
         }
 
         select {
             width: 100%;
-            padding: 1rem;
-            border-radius: 20px;
+            padding: 0.9rem;
+            border-radius: 18px;
             background: #1a1a2e;
-            border: 1px solid rgba(66, 133, 244, 0.2);
+            border: 1px solid rgba(66, 133, 244, 0.15);
             color: white;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             font-weight: 700;
             text-align: center;
         }
 
         .level-selector {
             display: flex;
-            gap: 8px;
+            gap: 7px;
             overflow-x: auto;
-            padding-bottom: 10px;
-            margin-bottom: 10px;
+            padding-bottom: 8px;
+            margin-bottom: 8px;
             scrollbar-width: none;
         }
 
         .lv-btn {
             flex-shrink: 0;
-            padding: 9px 16px;
-            border-radius: 15px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            font-size: 0.85rem;
-            color: #fff;
+            padding: 8px 14px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            font-size: 0.8rem;
+            color: #ccc;
             cursor: pointer;
         }
 
         .lv-btn.active {
             background: #10b981;
-            border-color: #10b981;
+            color: #fff;
+            font-weight: 800;
+            border-color: transparent;
         }
 
         @keyframes spin {
@@ -396,7 +363,6 @@
             <div id="tab-manage" class="tab" onclick="nav('manage')">AI 설정</div>
         </div>
 
-        <!-- 학습 뷰 -->
         <div id="learn-view">
             <div class="level-selector">
                 <div class="lv-btn active" onclick="setFilter('ALL', this)">전체</div>
@@ -408,9 +374,9 @@
             </div>
 
             <div
-                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem; padding: 0 10px;">
-                <span id="model-info" style="color: #91b9ff; font-weight: 800; font-size: 0.85rem;">Mode: ACTIVE</span>
-                <span id="prog-info" style="color: rgba(255,255,255,0.3); font-size: 0.8rem; font-weight: 800;">0 /
+                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem; padding: 0 8px;">
+                <span id="model-info" style="color: #91b9ff; font-weight: 800; font-size: 0.8rem;">Mode: ACTIVE</span>
+                <span id="prog-info" style="color: rgba(255,255,255,0.25); font-size: 0.75rem; font-weight: 800;">0 /
                     0</span>
             </div>
 
@@ -418,17 +384,14 @@
                 <div class="card-inner">
                     <div class="card-front">
                         <div id="w-en" class="word-text">Loading...</div>
+
                         <div class="visual-box">
-                            <div class="img-loader" id="img-loader">
-                                <div
-                                    style="width:20px;height:20px;border:3px solid rgba(66,133,244,0.1);border-top-color:#4285f4;border-radius:50%;animation:spin 0.8s linear infinite;">
-                                </div>
-                            </div>
                             <img id="w-img" src="" alt="visual">
                             <div class="reveal-overlay" id="img-reveal" onclick="revealElement('img', event)">
                                 <span>🖼️ 사진 보기</span>
                             </div>
                         </div>
+
                         <div class="explanation-box">
                             <span class="ex-tag">✨ Gemini Quiz</span>
                             <div id="w-ex" class="ex-text">...</div>
@@ -439,55 +402,49 @@
                     </div>
                     <div class="card-back">
                         <div id="w-ko" class="meaning-text">...</div>
-                        <button class="btn-main" style="margin-top: 2.5rem;" onclick="goNext(event)">다음 마스터 ➔</button>
+                        <button class="btn-main" style="margin-top: 2rem;" onclick="goNext(event)">다음 마스터 ➔</button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- 관리 뷰 -->
         <div id="manage-view">
             <div class="manage-card">
                 <div class="api-input-wrap">
-                    <p style="font-size: 0.85rem; color: #91b9ff; font-weight: 800; text-align: center;">🔑 Gemini API
+                    <p style="font-size: 0.8rem; color: #91b9ff; font-weight: 800; text-align: center;">🔑 Gemini API
                         Key</p>
-                    <input type="text" id="gemini-key" placeholder="키를 붙여넣으세요" onchange="saveKey()">
+                    <input type="text" id="gemini-key" placeholder="키 입력" onchange="saveKey()">
+                    <button
+                        style="margin-top:8px; background:rgba(255,255,255,0.08); border:none; color:#ddd; padding:8px; border-radius:10px; font-size:0.75rem; width:100%; cursor:pointer;"
+                        onclick="fetchMyModels()">🔄 모델 목록 업데이트</button>
                 </div>
-                <div style="margin-bottom: 1.5rem;">
-                    <p
-                        style="font-size: 0.75rem; color: rgba(255,255,255,0.3); margin-bottom: 6px; text-align: center;">
-                        🤖 AI 모델 선택</p>
-                    <select id="sel-model" onchange="updateModelInfo()">
-                        <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
-                        <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
-                    </select>
-                </div>
-                <p
-                    style="font-size: 0.95rem; margin-bottom: 12px; color: #10b981; font-weight: 800; text-align: center;">
-                    🚀 AI 영단어 생성</p>
-                <select id="sel-level">
-                    <option value="TRAVEL">✈️ 필수 여행 어휘</option>
-                    <option value="KID">👶 어린이 기초</option>
-                    <option value="ELEM">🎒 초등학교 필수</option>
-                    <option value="MID">🏫 중학교 핵심</option>
-                    <option value="HIGH" selected>🎓 고등학교 수능</option>
+                <select id="sel-model" onchange="updateModelInfo()">
+                    <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
+                    <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
                 </select>
-                <button id="btn-batch" class="btn-main" style="width: 100%;" onclick="askGeminiBatch(100)">AI 100개 세트
+                <p
+                    style="font-size: 0.9rem; margin-bottom: 10px; color: #10b981; font-weight: 800; text-align: center;">
+                    🚀 AI 새 단어 수집</p>
+                <select id="sel-level">
+                    <option value="TRAVEL">✈️ 여행 필수</option>
+                    <option value="KID">👶 어린이</option>
+                    <option value="ELEM">🎒 초등학교</option>
+                    <option value="MID">🏫 중학교</option>
+                    <option value="HIGH" selected>🎓 고등학교</option>
+                </select>
+                <button id="btn-batch" class="btn-main" style="width: 100%;" onclick="askGeminiBatch(100)">AI 100개 세트 마법
                     생성</button>
                 <div
-                    style="display:flex; justify-content: space-between; margin-top:2.5rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 1.5rem;">
-                    <span id="list-cnt" style="font-size:0.85rem; color:rgba(255,255,255,0.3);">0개 보유</span>
+                    style="display:flex; justify-content: space-between; margin-top:2rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 1rem;">
+                    <span id="list-cnt" style="font-size:0.75rem; color:rgba(255,255,255,0.25);">0 Vocabs</span>
                     <button
-                        style="border:none; background:none; color:var(--danger); font-size:0.8rem; font-weight:800; cursor:pointer;"
+                        style="border:none; background:none; color:var(--danger); font-size:0.75rem; font-weight:800; cursor:pointer;"
                         onclick="clearAll()">리셋</button>
                 </div>
             </div>
         </div>
 
-        <!-- 🏅 제작자 날아라메뚜기 브랜딩 -->
-        <footer class="footer">
-            CREATED BY <span class="author">날아라메뚜기</span>
-        </footer>
+        <footer class="footer">CREATED BY <span class="author">날아라메뚜기</span></footer>
     </main>
 
     <script>
@@ -501,13 +458,42 @@
             const key = localStorage.getItem('gemini_api_key');
             if (key) document.getElementById('gemini-key').value = key;
             const mod = localStorage.getItem('gemini_model');
-            if (mod) document.getElementById('sel-model').value = mod;
+            if (mod) {
+                const sel = document.getElementById('sel-model');
+                if (![...sel.options].some(o => o.value === mod)) {
+                    const opt = document.createElement('option');
+                    opt.value = opt.innerText = mod; sel.appendChild(opt);
+                }
+                sel.value = mod;
+            }
             saveAndRef(); refresh(); updateModelInfo();
         }
 
         function saveKey() {
             const val = document.getElementById('gemini-key').value.trim();
             if (val) localStorage.setItem('gemini_api_key', val);
+        }
+
+        async function fetchMyModels() {
+            const key = localStorage.getItem('gemini_api_key');
+            if (!key) return;
+            try {
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${key}`);
+                const data = await res.json();
+                if (data.models) {
+                    const sel = document.getElementById('sel-model');
+                    const cur = sel.value; sel.innerHTML = '';
+                    data.models.filter(m => m.supportedGenerationMethods.includes('generateContent'))
+                        .forEach(m => {
+                            const n = m.name.replace('models/', '');
+                            const o = document.createElement('option');
+                            o.value = o.innerText = n; sel.appendChild(o);
+                        });
+                    sel.value = cur; if (!sel.value) sel.selectedIndex = 0;
+                    updateModelInfo();
+                    alert('모델 업데이트 완료!');
+                }
+            } catch (e) { }
         }
 
         function updateModelInfo() {
@@ -532,33 +518,32 @@
 
         async function askGeminiBatch(count) {
             const key = localStorage.getItem('gemini_api_key');
-            if (!key) { alert('API 키를 입력하세요!'); return; }
+            if (!key) { alert('API 키 필요'); return; }
             const modelName = document.getElementById('sel-model').value;
             const level = document.getElementById('sel-level').value;
             const btn = document.getElementById('btn-batch');
             btn.innerText = "⏳ 생성 중..."; btn.disabled = true;
             try {
-                let context = level === 'TRAVEL' ? "여행 단어" : level;
-                const prompt = `${context} 영어 단어 ${count}개. 중복 불가. 힌트(ex) 포함. JSON 배열만: [{"en":"단어", "ko":"뜻", "ex":"수수께끼"}, ...]`;
+                let ctx = level === 'TRAVEL' ? "여행 단어" : level;
+                const p = `${ctx} 영어 단어 ${count}개. 중복 불가. JSON: [{"en":"단어", "ko":"뜻", "ex":"수수께끼"}] 형식만.`;
                 const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${key}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } })
+                    body: JSON.stringify({ contents: [{ parts: [{ text: p }] }], generationConfig: { responseMimeType: "application/json" } })
                 });
-                const data = await res.json();
-                const list = JSON.parse(data.candidates[0].content.parts[0].text);
+                const d = await res.json();
+                const list = JSON.parse(d.candidates[0].content.parts[0].text);
                 words = [...list.map(i => ({ ...i, day: level })), ...words];
-                saveAndRef(); refresh(); alert('성공!');
-            } catch (e) { alert('오출: ' + e.message); }
-            finally { btn.innerText = "AI 100개 세트 생성"; btn.disabled = false; }
+                saveAndRef(); refresh(); alert('생성 성공!');
+            } catch (e) { alert('오류: ' + e.message); }
+            finally { btn.innerText = "AI 100개 세트 마법 생성"; btn.disabled = false; }
         }
 
         async function fetchGeminiVisual(word) {
             const img = document.getElementById('w-img');
-            const loader = document.getElementById('img-loader');
             const key = localStorage.getItem('gemini_api_key');
             const modelName = document.getElementById('sel-model').value;
-            img.classList.remove('revealed'); loader.style.display = 'flex';
+            img.classList.remove('revealed');
             let p = word;
             if (key) {
                 try {
@@ -569,8 +554,7 @@
                     const d = await r.json(); p = d.candidates[0].content.parts[0].text.trim();
                 } catch (e) { }
             }
-            img.src = `https://image.pollinations.ai/prompt/${encodeURIComponent(p + ' cinematic')}?width=500&height=350&nologo=true&seed=${Math.floor(Math.random() * 999)}`;
-            img.onload = () => { loader.style.display = 'none'; };
+            img.src = `https://image.pollinations.ai/prompt/${encodeURIComponent(p + ' cinematic')}?width=600&height=400&nologo=true&seed=${Math.floor(Math.random() * 999)}`;
         }
 
         function revealElement(type, e) {
