@@ -382,7 +382,7 @@
                     <button class="btn-primary" style="margin-top:10px" onclick="addWord()">단어장에 추가</button>
                 </div>
 
-                <p class="stat-label" style="margin-top: 2rem; text-align: left;">내 단어장 목록 (${words?.length || 0})</p>
+                <p class="stat-label" id="word-count-label" style="margin-top: 2rem; text-align: left;">내 단어장 목록 (0)</p>
                 <div id="word-list" style="text-align: left; max-height: 200px; overflow-y: auto; margin-top: 10px;">
                 </div>
             </div>
@@ -472,6 +472,7 @@
         }
 
         function renderWordList() {
+            document.getElementById('word-count-label').innerText = `내 단어장 목록 (${words.length})`;
             document.getElementById('word-list').innerHTML = words.map((w, i) => `
                 <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.85rem;">
                     <span>[D${w.day || '-'}] <b>${w.en}</b>: ${w.ko}</span>

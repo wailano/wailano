@@ -413,7 +413,11 @@
                 <div class="api-input-wrap">
                     <p style="font-size: 0.8rem; color: #91b9ff; font-weight: 800; text-align: center;">🔑 Gemini API
                         Key</p>
-                    <input type="text" id="gemini-key" placeholder="키 입력" onchange="saveKey()">
+                    <input type="password" id="gemini-key" placeholder="키 입력" onchange="saveKey()" autocomplete="off">
+                    <label style="display:flex;align-items:center;gap:6px;margin-top:8px;font-size:0.72rem;color:rgba(255,255,255,0.45);cursor:pointer;">
+                        <input type="checkbox" id="persist-key" onchange="saveKey()" style="width:auto;margin:0;accent-color:#4285f4;">
+                        이 기기에 저장 (체크 해제 시 탭 닫으면 삭제)
+                    </label>
                     <button
                         style="margin-top:8px; background:rgba(255,255,255,0.08); border:none; color:#ddd; padding:8px; border-radius:10px; font-size:0.75rem; width:100%; cursor:pointer;"
                         onclick="fetchMyModels()">🔄 모델 목록 업데이트</button>
@@ -455,8 +459,11 @@
         function init() {
             const saved = localStorage.getItem('voca_list');
             words = saved ? JSON.parse(saved) : (window.MASTER_WORDS || []);
-            const key = localStorage.getItem('gemini_api_key');
-            if (key) document.getElementById('gemini-key').value = key;
+            const key = getApiKey();
+            if (key) {
+                document.getElementById('gemini-key').value = key;
+                document.getElementById('persist-key').checked = !!localStorage.getItem('gemini_api_key');
+            }
             const mod = localStorage.getItem('gemini_model');
             if (mod) {
                 const sel = document.getElementById('sel-model');
@@ -469,13 +476,25 @@
             saveAndRef(); refresh(); updateModelInfo();
         }
 
+        function getApiKey() {
+            return localStorage.getItem('gemini_api_key') || sessionStorage.getItem('gemini_api_key') || '';
+        }
+
         function saveKey() {
             const val = document.getElementById('gemini-key').value.trim();
-            if (val) localStorage.setItem('gemini_api_key', val);
+            const persist = document.getElementById('persist-key').checked;
+            if (!val) return;
+            if (persist) {
+                localStorage.setItem('gemini_api_key', val);
+                sessionStorage.removeItem('gemini_api_key');
+            } else {
+                sessionStorage.setItem('gemini_api_key', val);
+                localStorage.removeItem('gemini_api_key');
+            }
         }
 
         async function fetchMyModels() {
-            const key = localStorage.getItem('gemini_api_key');
+            const key = getApiKey();
             if (!key) return;
             try {
                 const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${key}`);
@@ -517,7 +536,7 @@
         }
 
         async function askGeminiBatch(count) {
-            const key = localStorage.getItem('gemini_api_key');
+            const key = getApiKey();
             if (!key) { alert('API 키 필요'); return; }
             const modelName = document.getElementById('sel-model').value;
             const level = document.getElementById('sel-level').value;
@@ -541,7 +560,7 @@
 
         async function fetchGeminiVisual(word) {
             const img = document.getElementById('w-img');
-            const key = localStorage.getItem('gemini_api_key');
+            const key = getApiKey();
             const modelName = document.getElementById('sel-model').value;
             img.classList.remove('revealed');
             let p = word;
