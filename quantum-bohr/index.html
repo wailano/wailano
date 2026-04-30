@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Word Master | Compact Edition</title>
     <script src="vocabulary.js" onerror="window.MASTER_WORDS=[]"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
@@ -348,6 +349,29 @@
                 transform: rotate(360deg);
             }
         }
+
+        /* ── 테이블 뷰 ── */
+        #table-view { width: 100%; }
+        .tbl-search-wrap { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 1rem 1.2rem; margin-bottom: 0.8rem; }
+        .tbl-search-input { width: 100%; background: #000; border: 1px solid rgba(66,133,244,0.25); border-radius: 12px; padding: 0.7rem 1rem; color: white; font-size: 0.9rem; outline: none; }
+        .tbl-search-input:focus { border-color: var(--primary); }
+        .tbl-lv-row { display: flex; gap: 5px; margin-top: 8px; flex-wrap: wrap; }
+        .tbl-lv-btn { padding: 5px 12px; border-radius: 10px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); font-size: 0.75rem; color: #ccc; cursor: pointer; font-weight: 700; }
+        .tbl-lv-btn.active { background: var(--primary); color: #fff; border-color: transparent; }
+        .tbl-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.1); border-radius: 25px; overflow: hidden; }
+        .tbl-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+        th { padding: 10px 12px; background: rgba(66,133,244,0.1); cursor: pointer; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.08); font-weight: 800; color: #91b9ff; white-space: nowrap; user-select: none; }
+        th:hover { background: rgba(66,133,244,0.18); }
+        td { padding: 9px 12px; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: middle; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: rgba(255,255,255,0.02); }
+        .tbl-lv-tag { font-size: 0.65rem; background: rgba(66,133,244,0.2); border: 1px solid rgba(66,133,244,0.3); border-radius: 6px; padding: 2px 7px; font-weight: 800; color: #91b9ff; white-space: nowrap; }
+        .tbl-del-btn { background: none; border: none; color: var(--danger); cursor: pointer; font-size: 0.85rem; font-weight: 800; padding: 2px 6px; }
+        .tbl-info { text-align: center; font-size: 0.72rem; color: rgba(255,255,255,0.25); margin-top: 0.8rem; font-weight: 700; }
+        .sort-ind { margin-left: 3px; font-size: 0.65rem; }
+        .ocr-btn { background: rgba(16,185,129,0.1); border: 1px dashed #10b981; color: #10b981; padding: 0.9rem; border-radius: 14px; width: 100%; cursor: pointer; font-weight: 700; font-size: 0.9rem; margin-bottom: 1rem; }
+        .ocr-btn:disabled { opacity: 0.5; cursor: not-allowed; }
     </style>
 </head>
 
@@ -361,6 +385,7 @@
         <div class="nav-tabs">
             <div id="tab-learn" class="tab active" onclick="nav('learn')">학습 중</div>
             <div id="tab-manage" class="tab" onclick="nav('manage')">AI 설정</div>
+            <div id="tab-table" class="tab" onclick="nav('table')">📋 목록</div>
         </div>
 
         <div id="learn-view">
@@ -426,6 +451,11 @@
                     <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
                     <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
                 </select>
+                <button id="btn-ocr" class="ocr-btn" onclick="document.getElementById('ocr-file').click()">
+                    📸 사진 OCR — 영단어 일괄 추출 & 추가
+                </button>
+                <input type="file" id="ocr-file" accept="image/*" style="display:none" onchange="handleOCR(event)">
+
                 <p
                     style="font-size: 0.9rem; margin-bottom: 10px; color: #10b981; font-weight: 800; text-align: center;">
                     🚀 AI 새 단어 수집</p>
@@ -446,6 +476,40 @@
                         onclick="clearAll()">리셋</button>
                 </div>
             </div>
+        </div>
+
+        <div id="table-view" style="display:none;">
+            <div class="tbl-search-wrap">
+                <input type="text" class="tbl-search-input" id="tbl-search" placeholder="🔍 영어 또는 한글로 검색..." oninput="renderTable()">
+                <div class="tbl-lv-row">
+                    <div class="tbl-lv-btn active" onclick="setTblFilter('ALL',this)">전체</div>
+                    <div class="tbl-lv-btn" onclick="setTblFilter('KID',this)">어린이</div>
+                    <div class="tbl-lv-btn" onclick="setTblFilter('ELEM',this)">초등</div>
+                    <div class="tbl-lv-btn" onclick="setTblFilter('MID',this)">중등</div>
+                    <div class="tbl-lv-btn" onclick="setTblFilter('HIGH',this)">고등</div>
+                    <div class="tbl-lv-btn" onclick="setTblFilter('TRAVEL',this)">여행</div>
+                    <div class="tbl-lv-btn" onclick="setTblFilter('AI',this)">AI</div>
+                    <div class="tbl-lv-btn" onclick="setTblFilter('User',this)">직접추가</div>
+                </div>
+            </div>
+            <div class="tbl-card">
+                <div class="tbl-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width:36px; cursor:default;">#</th>
+                                <th onclick="sortTable('en')">영어 <span class="sort-ind" id="sort-en">▲</span></th>
+                                <th onclick="sortTable('ko')">한글 <span class="sort-ind" id="sort-ko"></span></th>
+                                <th onclick="sortTable('day')">레벨 <span class="sort-ind" id="sort-day"></span></th>
+                                <th style="cursor:default;">힌트</th>
+                                <th style="width:36px; cursor:default;"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbl-body"></tbody>
+                    </table>
+                </div>
+            </div>
+            <p class="tbl-info" id="tbl-info"></p>
         </div>
 
         <footer class="footer">CREATED BY <span class="author">날아라메뚜기</span></footer>
@@ -535,6 +599,14 @@
             if (cntEl) cntEl.innerText = `${words.length}개 보유 중`;
         }
 
+        async function translateToKorean(text) {
+            try {
+                const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|ko`);
+                const data = await res.json();
+                return data.responseData?.translatedText || '';
+            } catch { return ''; }
+        }
+
         async function askGeminiBatch(count) {
             const key = getApiKey();
             if (!key) { alert('API 키 필요'); return; }
@@ -543,8 +615,14 @@
             const btn = document.getElementById('btn-batch');
             btn.innerText = "⏳ 생성 중..."; btn.disabled = true;
             try {
-                let ctx = level === 'TRAVEL' ? "여행 단어" : level;
-                const p = `${ctx} 영어 단어 ${count}개. 중복 불가. JSON: [{"en":"단어", "ko":"뜻", "ex":"수수께끼"}] 형식만.`;
+                const levelLabel = { TRAVEL: 'travel/tourism', KID: 'children (age 5-8)', ELEM: 'elementary school', MID: 'middle school', HIGH: 'high school / SAT' }[level] || level;
+                const p = `Generate exactly ${count} unique English vocabulary words appropriate for ${levelLabel} level learners.
+Return ONLY a valid JSON array with no extra text. Each object must include all three fields:
+- "en": the English word (string)
+- "ko": the Korean translation/meaning in Korean characters (string) — THIS FIELD IS REQUIRED FOR EVERY ITEM
+- "ex": a short Korean riddle/hint that describes the word without stating it directly (string)
+Example: [{"en":"journey","ko":"여행","ex":"집을 떠나 새로운 곳을 향해 나아가는 것"},...]
+No duplicates. Return exactly ${count} items.`;
                 const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${key}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -552,8 +630,17 @@
                 });
                 const d = await res.json();
                 const list = JSON.parse(d.candidates[0].content.parts[0].text);
+
+                // ko 누락된 항목 폴백 번역
+                btn.innerText = "⏳ 번역 보완 중...";
+                for (const item of list) {
+                    if (!item.ko || item.ko.trim() === '') {
+                        item.ko = await translateToKorean(item.en);
+                    }
+                }
+
                 words = [...list.map(i => ({ ...i, day: level })), ...words];
-                saveAndRef(); refresh(); alert('생성 성공!');
+                saveAndRef(); refresh(); alert(`✅ ${list.length}개 단어 생성 완료!`);
             } catch (e) { alert('오류: ' + e.message); }
             finally { btn.innerText = "AI 100개 세트 마법 생성"; btn.disabled = false; }
         }
@@ -618,9 +705,100 @@
         function nav(n) {
             document.getElementById('learn-view').style.display = n === 'learn' ? 'block' : 'none';
             document.getElementById('manage-view').style.display = n === 'manage' ? 'block' : 'none';
+            document.getElementById('table-view').style.display = n === 'table' ? 'block' : 'none';
             document.getElementById('tab-learn').classList.toggle('active', n === 'learn');
             document.getElementById('tab-manage').classList.toggle('active', n === 'manage');
+            document.getElementById('tab-table').classList.toggle('active', n === 'table');
+            if (n === 'table') renderTable();
         }
+        // ── OCR: 이미지에서 전체 단어 추출 ──
+        async function handleOCR(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const btn = document.getElementById('btn-ocr');
+            btn.disabled = true;
+            try {
+                btn.innerText = '⏳ OCR 분석 중...';
+                const { data: { text } } = await Tesseract.recognize(file, 'eng');
+                const stopWords = new Set(['the','and','for','are','but','not','you','all','can','was','one','has','how','its','may','new','now','see','two','who','did','she','too','use','this','that','with','from','they','have','been','will','your','more','when','also','into','than','then','them','these']);
+                const found = [...new Set(
+                    (text.match(/[a-zA-Z]{3,}/g) || []).map(w => w.toLowerCase())
+                )].filter(w => !stopWords.has(w));
+
+                if (!found.length) { alert('영단어를 찾지 못했습니다.'); return; }
+
+                const existing = new Set(words.map(w => w.en.toLowerCase()));
+                const toAdd = [];
+                for (let i = 0; i < found.length; i++) {
+                    btn.innerText = `번역 중 (${i + 1}/${found.length})...`;
+                    if (existing.has(found[i])) continue;
+                    const ko = await translateToKorean(found[i]);
+                    if (ko) { toAdd.push({ en: found[i], ko, day: 'User' }); existing.add(found[i]); }
+                }
+
+                if (toAdd.length) {
+                    words = [...toAdd, ...words];
+                    saveAndRef(); refresh();
+                    alert(`✅ ${toAdd.length}개 단어 추가 완료! (${found.length - toAdd.length}개 중복 제외)`);
+                } else {
+                    alert('새로 추가할 단어가 없습니다 (모두 중복).');
+                }
+            } catch(e) { alert('오류: ' + e.message); }
+            finally { btn.innerText = '📸 사진 OCR — 영단어 일괄 추출 & 추가'; btn.disabled = false; event.target.value = ''; }
+        }
+
+        // ── 테이블 뷰 ──
+        let tblFilter = 'ALL';
+        let tblSortCol = 'en';
+        let tblSortAsc = true;
+
+        function renderTable() {
+            const q = (document.getElementById('tbl-search').value || '').toLowerCase();
+            let list = words.filter(w => {
+                if (tblFilter !== 'ALL' && String(w.day) !== tblFilter) return false;
+                return !q || w.en.toLowerCase().includes(q) || (w.ko || '').includes(q);
+            });
+            list.sort((a, b) => {
+                const av = (a[tblSortCol] || '').toString().toLowerCase();
+                const bv = (b[tblSortCol] || '').toString().toLowerCase();
+                return tblSortAsc ? av.localeCompare(bv, 'ko') : bv.localeCompare(av, 'ko');
+            });
+            document.getElementById('tbl-body').innerHTML = list.map((w, i) => `
+                <tr>
+                    <td style="opacity:0.3; font-size:0.72rem;">${i + 1}</td>
+                    <td><b style="color:#91b9ff">${w.en}</b></td>
+                    <td>${w.ko || '<span style="opacity:0.3;color:#ef4444">미번역</span>'}</td>
+                    <td><span class="tbl-lv-tag">${w.day || '-'}</span></td>
+                    <td style="opacity:0.45; font-size:0.75rem; max-width:110px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${(w.ex || '').replace(/"/g, '&quot;')}">${w.ex || '-'}</td>
+                    <td><button class="tbl-del-btn" onclick="deleteWordByEn(this)">✕</button></td>
+                </tr>
+            `).join('');
+            document.getElementById('tbl-info').innerText = `${list.length}개 표시 중 / 전체 ${words.length}개`;
+        }
+
+        function setTblFilter(level, btn) {
+            tblFilter = level;
+            document.querySelectorAll('.tbl-lv-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderTable();
+        }
+
+        function sortTable(col) {
+            if (tblSortCol === col) tblSortAsc = !tblSortAsc;
+            else { tblSortCol = col; tblSortAsc = true; }
+            ['en', 'ko', 'day'].forEach(c => {
+                const el = document.getElementById('sort-' + c);
+                if (el) el.innerText = c === col ? (tblSortAsc ? '▲' : '▼') : '';
+            });
+            renderTable();
+        }
+
+        function deleteWordByEn(btn) {
+            const en = btn.closest('tr').querySelector('td:nth-child(2) b').innerText;
+            words = words.filter(w => w.en !== en);
+            saveAndRef(); renderTable();
+        }
+
         window.onload = init;
     </script>
 </body>

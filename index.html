@@ -448,16 +448,44 @@
         async function handleOCR(event) {
             const file = event.target.files[0];
             if (!file) return;
-            document.getElementById('loading-overlay').style.display = 'flex';
+            const overlay = document.getElementById('loading-overlay');
+            const loadingText = document.getElementById('loading-text');
+            overlay.style.display = 'flex';
+            loadingText.innerText = 'OCR 이미지 분석 중...';
             try {
                 const { data: { text } } = await Tesseract.recognize(file, 'eng');
-                const found = text.match(/[a-zA-Z]+/g);
-                if (found) {
-                    const candidate = found.find(w => w.length > 2) || found[0];
-                    document.getElementById('new-en').value = candidate;
-                    document.getElementById('new-ko').value = await translateToKorean(candidate);
+                const stopWords = new Set(['the','and','for','are','but','not','you','all','can','was','one','has','how','its','may','new','now','see','two','who','did','she','too','use','this','that','with','from','they','have','been','will','your','more','when','also','into','than','then','them','these']);
+                const found = [...new Set(
+                    (text.match(/[a-zA-Z]{3,}/g) || []).map(w => w.toLowerCase())
+                )].filter(w => !stopWords.has(w));
+
+                if (!found.length) { alert('영단어를 찾지 못했습니다.'); return; }
+
+                const existing = new Set(words.map(w => w.en.toLowerCase()));
+                const toAdd = [];
+                for (let i = 0; i < found.length; i++) {
+                    loadingText.innerText = `번역 중... (${i + 1} / ${found.length})`;
+                    if (existing.has(found[i])) continue;
+                    const ko = await translateToKorean(found[i]);
+                    if (ko) { toAdd.push({ en: found[i], ko, day: 'User' }); existing.add(found[i]); }
                 }
-            } finally { document.getElementById('loading-overlay').style.display = 'none'; }
+
+                if (toAdd.length) {
+                    words = [...toAdd, ...words];
+                    localStorage.setItem('voca_list', JSON.stringify(words));
+                    currentIndex = 0;
+                    renderWordList();
+                    updateUI();
+                    alert(`✅ ${toAdd.length}개 단어 추가 완료! (${found.length - toAdd.length}개 중복 제외)`);
+                } else {
+                    alert('새로 추가할 단어가 없습니다 (모두 중복).');
+                }
+            } catch(e) {
+                alert('오류: ' + e.message);
+            } finally {
+                overlay.style.display = 'none';
+                event.target.value = '';
+            }
         }
 
         function addWord() {
